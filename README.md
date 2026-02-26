@@ -9,3 +9,4 @@ AxisFit es una plataforma de monitorización en tiempo real que analiza la postu
 - Base de datos integrada para análisis y seguimiento
 
 ## Aplicación en vivo
+https://monitor-deportivo-cf4n.onrender.com
