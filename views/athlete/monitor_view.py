@@ -19,13 +19,9 @@
 # - PASO 12: renombra ecg-graph -> imu-graph
 # - PASO 13: selector Deporte = Gym/CrossFit (acepta values viejos: general/strength/etc.)
 #
-# ⚠️ Nota importante:
-# Tu imu_realtime_sim.py actual NO trae get_samples_since() ni campos T_/L_/zones/comp.
-# Para no bloquear el MVP, aquí se implementa un wrapper que:
-# - toma la ventana (t/pitch/roll/yaw/score/bad) y genera timestamps absolutos por sesión
-# - “duplica” datos a 2 IMUs (T y L) con ligeras variaciones
-# - calcula thor_zone/lum_zone/comp_index de forma simple
-# Cuando tu simulador ya exponga get_samples_since(last_ts_ms) real, puedes reemplazar el wrapper.
+# Nota:
+# imu_realtime_sim.py ya expone get_samples_since() con datos RAW de 2 IMUs.
+# Aquí se consume esa API y se mantiene un fallback por ventana para compatibilidad.
 
 from dash import html, dcc, Input, Output, State, ctx
 from dash.exceptions import PreventUpdate
@@ -434,6 +430,47 @@ def _get_samples_since_from_window(win, stats):
         stats["last_ts_ms"] = int(rows[-1]["ts_ms"])
 
     return rows
+
+
+def _get_samples_since_v2(win, stats):
+    """Obtiene muestras 2-IMUs del simulador y las normaliza a epoch ms."""
+    last_sim_ts_ms = int(stats.get("last_sim_ts_ms") or 0)
+    now_epoch_ms = int(time.time() * 1000)
+
+    try:
+        rows = IMU_SIM.get_samples_since(last_sim_ts_ms)
+    except Exception:
+        rows = None
+
+    if rows is None:
+        return _get_samples_since_from_window(win, stats)
+    if not rows:
+        return []
+
+    first_sim_ts = int(rows[0].get("ts_ms", 0))
+    sim_epoch_ms = stats.get("sim_epoch_ms")
+    if sim_epoch_ms is None:
+        sim_epoch_ms = now_epoch_ms - first_sim_ts
+        stats["sim_epoch_ms"] = int(sim_epoch_ms)
+    else:
+        sim_epoch_ms = int(sim_epoch_ms)
+
+    out = []
+    for r in rows:
+        rel_ts = int(r.get("ts_ms", 0))
+        if rel_ts < int(stats.get("last_sim_ts_ms") or 0):
+            sim_epoch_ms = now_epoch_ms - rel_ts
+            stats["sim_epoch_ms"] = int(sim_epoch_ms)
+
+        abs_ts = int(sim_epoch_ms + rel_ts)
+        row = dict(r)
+        row["ts_ms"] = abs_ts
+        out.append(row)
+
+        stats["last_sim_ts_ms"] = rel_ts
+        stats["last_ts_ms"] = abs_ts
+
+    return out
 
 
 # =============================
@@ -1008,8 +1045,8 @@ def register_callbacks(app):
             win = IMU_SIM.get_window(seconds=20.0)
 
             # stats temporal -> exporta toda la ventana siempre
-            temp_stats = {"last_t_s": None, "base_epoch_ms": None, "last_ts_ms": 0}
-            rows = _get_samples_since_from_window(win, temp_stats)
+            temp_stats = {"last_sim_ts_ms": 0, "sim_epoch_ms": None, "last_ts_ms": 0}
+            rows = _get_samples_since_v2(win, temp_stats)
 
             fieldnames = [
                 "ts_ms",
@@ -1117,6 +1154,8 @@ def register_callbacks(app):
                     "first_ts_ms": None,
                     "last_t_s": None,
                     "base_epoch_ms": None,
+                    "last_sim_ts_ms": 0,
+                    "sim_epoch_ms": None,
                     "last_flush_ms": 0,
                     "thor_red_s": 0.0,
                     "lum_red_s": 0.0,
@@ -1386,9 +1425,19 @@ def register_callbacks(app):
         thr_thor_tmp = (thr_tmp or {}).get("thor") or DEFAULT_THRESHOLDS.get("desk", {}).get("thor", {})
         thr_lum_tmp  = (thr_tmp or {}).get("lum")  or DEFAULT_THRESHOLDS.get("desk", {}).get("lum", {})
 
-        thor_zone_last = _zone_from_angles(pitch_now, roll_now, thr=thr_thor_tmp)
-        lum_zone_last  = _zone_from_angles(pitch_now * 0.85, roll_now * 0.90, thr=thr_lum_tmp)
-        comp_last = _comp_index_simple(pitch_now, roll_now, pitch_now * 0.85, roll_now * 0.90)
+        T_pitch_series = win.get("T_pitch") or pitch
+        T_roll_series = win.get("T_roll") or roll
+        L_pitch_series = win.get("L_pitch") or [v * 0.85 for v in pitch]
+        L_roll_series = win.get("L_roll") or [v * 0.90 for v in roll]
+
+        T_pitch_now = float(T_pitch_series[-1]) if T_pitch_series else pitch_now
+        T_roll_now = float(T_roll_series[-1]) if T_roll_series else roll_now
+        L_pitch_now = float(L_pitch_series[-1]) if L_pitch_series else (pitch_now * 0.85)
+        L_roll_now = float(L_roll_series[-1]) if L_roll_series else (roll_now * 0.90)
+
+        thor_zone_last = _zone_from_angles(T_pitch_now, T_roll_now, thr=thr_thor_tmp)
+        lum_zone_last  = _zone_from_angles(L_pitch_now, L_roll_now, thr=thr_lum_tmp)
+        comp_last = _comp_index_simple(T_pitch_now, T_roll_now, L_pitch_now, L_roll_now)
         thor_red_s_out = "—"
         lum_red_s_out = "—"
         comp_out = f"{comp_last:.1f}"
@@ -1398,7 +1447,7 @@ def register_callbacks(app):
             stats = _STATS_MAIN[main_session_id]
             buf = _RAW_BUFFER_MAIN.get(main_session_id, [])
 
-            new_rows = _get_samples_since_from_window(win, stats)
+            new_rows = _get_samples_since_v2(win, stats)
 
             if new_rows and stats.get("first_ts_ms") is None:
                 stats["first_ts_ms"] = int(new_rows[0]["ts_ms"])
