@@ -1,5 +1,4 @@
 # app.py
-import os
 import dash
 from dash import dcc, html, Input, Output, State
 from dash.exceptions import PreventUpdate
@@ -27,23 +26,6 @@ app = dash.Dash(
     suppress_callback_exceptions=True
 )
 server = app.server
-
-DEPLOY_MARKER = "imu-v2-render-fix"
-
-
-def _deployment_info() -> dict:
-    return {
-        "marker": DEPLOY_MARKER,
-        "render_service_id": os.getenv("RENDER_SERVICE_ID", ""),
-        "render_git_commit": os.getenv("RENDER_GIT_COMMIT", ""),
-        "render_instance_id": os.getenv("RENDER_INSTANCE_ID", ""),
-        "python_version": os.getenv("PYTHON_VERSION", ""),
-    }
-
-
-@server.get("/__deploy")
-def deploy_info_endpoint():
-    return _deployment_info()
 
 # --- INYECTAR CSS ---
 app.index_string = """
@@ -314,11 +296,6 @@ app.layout = html.Div([
     dcc.Store(id="router", storage_type="session", data={"view": "home"}),  # home decidirá ath-home / coach-home
     dcc.Store(id="reg-base", storage_type="memory"),
     dcc.Store(id="q-reset", storage_type="memory", data=0),
-    html.Div(
-        id="deploy-marker",
-        children=f"build: {(_deployment_info().get('render_git_commit') or DEPLOY_MARKER)[:12]}",
-        style={"position": "fixed", "right": "12px", "bottom": "8px", "fontSize": "10px", "opacity": 0.55, "zIndex": 9999},
-    ),
 
     # ----- NAVBAR -----
     dbc.Navbar(
