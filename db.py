@@ -28,7 +28,11 @@ def _connect():
 
 
 def init_db():
-    DB_PATH.touch(exist_ok=True)
+    # Windows puede denegar `touch(exist_ok=True)` si SQLite ya tiene el
+    # archivo abierto o bloqueado por el servidor Dash. No necesitamos tocar
+    # mtime en cada arranque: sqlite3 crea el archivo al conectar si no existe.
+    if not DB_PATH.exists():
+        DB_PATH.touch(exist_ok=True)
     with _connect() as conn:
         _ensure_schema(conn)
 
@@ -395,6 +399,16 @@ def _ensure_schema(conn: sqlite3.Connection):
     _ensure_columns("questionnaire_daily", [("updated_at", "DATETIME")])
     _ensure_columns("sensor_samples_raw", [("T_imu_ts_ms", "INTEGER"), ("L_imu_ts_ms", "INTEGER")])
     _ensure_columns("daily_summary", [("alerts_count", "INTEGER")])  # ✅ FIX
+    _ensure_columns(
+        "sensor_sessions",
+        [
+            ("planned_session_name", "TEXT"),
+            ("questionnaire_session_id", "INTEGER"),
+            ("routine_session_id", "INTEGER"),
+            ("baseline_test_id", "INTEGER"),
+            ("context_json", "TEXT"),
+        ],
+    )
 
     existing_cols = {r["name"] for r in cur.execute("PRAGMA table_info(users)").fetchall()}
 
@@ -952,6 +966,11 @@ def start_sensor_session(
     mode: Optional[str] = None,
     sport: Optional[str] = None,
     started_at: Optional[datetime] = None,
+    planned_session_name: Optional[str] = None,
+    questionnaire_session_id: Optional[int] = None,
+    routine_session_id: Optional[int] = None,
+    baseline_test_id: Optional[int] = None,
+    context_json: Optional[Dict] = None,
 ) -> int:
     if not isinstance(user_id, int):
         raise ValueError("user_id inválido")
@@ -960,13 +979,50 @@ def start_sensor_session(
         raise ValueError("kind inválido (monitor|routine|baseline)")
 
     sa = (started_at or datetime.now()).isoformat(timespec="seconds")
+
+    qsid = None
+    rsid = None
+    bsid = None
+    try:
+        if questionnaire_session_id is not None:
+            qsid = int(questionnaire_session_id)
+    except Exception:
+        qsid = None
+    try:
+        if routine_session_id is not None:
+            rsid = int(routine_session_id)
+    except Exception:
+        rsid = None
+    try:
+        if baseline_test_id is not None:
+            bsid = int(baseline_test_id)
+    except Exception:
+        bsid = None
+
+    ctx_json = _json_dumps_safe(context_json if isinstance(context_json, dict) else {})
+
     with _connect() as conn:
         cur = conn.execute(
             """
-            INSERT INTO sensor_sessions(user_id, kind, mode, sport, started_at)
-            VALUES (?,?,?,?,?)
+            INSERT INTO sensor_sessions(
+                user_id, kind, mode, sport,
+                planned_session_name, questionnaire_session_id, routine_session_id, baseline_test_id, context_json,
+                started_at
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,?)
             """,
-            (user_id, kind, mode, sport, sa),
+            (
+                user_id,
+                kind,
+                mode,
+                sport,
+                (planned_session_name or None),
+                qsid,
+                rsid,
+                bsid,
+                ctx_json,
+                sa,
+            ),
         )
         conn.commit()
         return int(cur.lastrowid)
@@ -1456,6 +1512,444 @@ def list_questionnaire_sessions(*, user_id: int, limit: int = 20) -> List[Dict]:
     return out
 
 
+
+def _baseline_summary_from_payload(baseline_payload: Optional[Dict]) -> Dict:
+    payload = baseline_payload if isinstance(baseline_payload, dict) else {}
+    rom = payload.get("rom") if isinstance(payload.get("rom"), dict) else {}
+    stability = payload.get("stability") if isinstance(payload.get("stability"), dict) else {}
+    comp = payload.get("comp") if isinstance(payload.get("comp"), dict) else {}
+
+    def _f(v, default=0.0):
+        try:
+            return float(v)
+        except Exception:
+            return float(default)
+
+    return {
+        "rom_thor_pitch": _f(rom.get("thor_pitch")),
+        "rom_lum_pitch": _f(rom.get("lum_pitch")),
+        "comp_avg": _f(comp.get("comp_avg")),
+        "comp_peak": _f(comp.get("comp_peak")),
+        "lum_pitch_std": _f(stability.get("lum_pitch_std")),
+        "thor_pitch_std": _f(stability.get("thor_pitch_std")),
+        "diff_tl_pitch_mean": _f(payload.get("diff_TL_pitch_mean")),
+        "n_samples": int(_f(payload.get("n_samples"), 0.0)),
+    }
+
+
+def _normalize_numeric_dict(raw: Optional[Dict]) -> Dict:
+    src = raw if isinstance(raw, dict) else {}
+    out: Dict = {}
+    for k, v in src.items():
+        if isinstance(v, bool):
+            out[k] = v
+            continue
+        try:
+            if v is None or (isinstance(v, str) and not v.strip()):
+                out[k] = v
+            elif isinstance(v, (int, float)):
+                out[k] = float(v)
+            else:
+                out[k] = float(v)
+        except Exception:
+            out[k] = v
+    return out
+
+
+def _normalize_thresholds_root(raw_thresholds: Optional[Dict]) -> Dict:
+    src = raw_thresholds if isinstance(raw_thresholds, dict) else {}
+
+    def _mode_block(mode_key: str) -> Dict:
+        mode_src = src.get(mode_key) if isinstance(src.get(mode_key), dict) else {}
+        thor_src = mode_src.get("thor") if isinstance(mode_src.get("thor"), dict) else {}
+        lum_src = mode_src.get("lum") if isinstance(mode_src.get("lum"), dict) else {}
+        return {
+            "thor": _normalize_numeric_dict(thor_src),
+            "lum": _normalize_numeric_dict(lum_src),
+        }
+
+    if any(k in src for k in ("desk", "train")):
+        return {
+            "desk": _mode_block("desk"),
+            "train": _mode_block("train"),
+        }
+
+    thor_src = src.get("thor") if isinstance(src.get("thor"), dict) else {}
+    lum_src = src.get("lum") if isinstance(src.get("lum"), dict) else {}
+    if thor_src or lum_src:
+        shared = {
+            "thor": _normalize_numeric_dict(thor_src),
+            "lum": _normalize_numeric_dict(lum_src),
+        }
+        return {
+            "desk": json.loads(json.dumps(shared, ensure_ascii=False)),
+            "train": json.loads(json.dumps(shared, ensure_ascii=False)),
+        }
+
+    return {
+        "desk": {"thor": {}, "lum": {}},
+        "train": {"thor": {}, "lum": {}},
+    }
+
+
+def _normalize_posture_settings_payload(payload: Optional[Dict]) -> Dict:
+    """Normaliza user_posture_settings a una forma estable compartida.
+
+    Regla de fuente de verdad:
+    - thresholds vive en user_posture_settings.thresholds_json
+    - la forma persistida debe ser siempre consistente para Monitor y Cuestionario
+    - si entra una estructura legacy, se adapta sin romper compatibilidad
+    """
+    src = payload if isinstance(payload, dict) else {}
+
+    thresholds_src = src.get("thresholds") if isinstance(src.get("thresholds"), dict) else None
+    if thresholds_src is None:
+        thresholds_src = src
+
+    adaptation_src = src.get("adaptation") if isinstance(src.get("adaptation"), dict) else {}
+    if not adaptation_src and isinstance(src.get("adaptation_rules"), dict):
+        adaptation_src = src.get("adaptation_rules")
+
+    baseline_reference = src.get("baseline_reference") if isinstance(src.get("baseline_reference"), dict) else {}
+
+    normalized = {
+        "thresholds": _normalize_thresholds_root(thresholds_src),
+        "adaptation": _normalize_numeric_dict(adaptation_src),
+        "baseline_reference": baseline_reference,
+        "version": str(src.get("version") or "wizard_v2"),
+    }
+
+    # Alias compatible para consumidores antiguos.
+    normalized["adaptation_rules"] = json.loads(json.dumps(normalized["adaptation"], ensure_ascii=False))
+
+    for extra_key in ("source", "updated_from", "notes"):
+        if extra_key in src and extra_key not in normalized:
+            normalized[extra_key] = src.get(extra_key)
+
+    return normalized
+
+
+def get_latest_baseline_reference(*, user_id: int) -> Optional[Dict]:
+    """Fuente de verdad compartida del baseline histórico.
+
+    Devuelve la última fila de baseline_tests ya normalizada para Monitor y Cuestionario:
+    - baseline histórico siempre sale de baseline_tests
+    - baseline parseado en `baseline`
+    - resumen agregado en `summary`
+    - alias `baseline_test_id` para no duplicar lógica de lectura en vistas
+    """
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT *
+            FROM baseline_tests
+            WHERE user_id=?
+            ORDER BY datetime(created_at) DESC, id DESC
+            LIMIT 1
+            """,
+            (uid,),
+        ).fetchone()
+
+    if not row:
+        return None
+
+    out = dict(row)
+    baseline_payload = _json_loads_safe(out.get("baseline_json"))
+    if not isinstance(baseline_payload, dict):
+        baseline_payload = {}
+
+    out["baseline"] = baseline_payload
+    out["baseline_test_id"] = out.get("id")
+    out["summary"] = _baseline_summary_from_payload(baseline_payload)
+    out["source"] = "baseline_tests"
+    out["history_source"] = "baseline_tests"
+    out["is_history_reference"] = True
+    return out
+
+
+def get_routine_link_context(*, user_id: int, day: Optional[date] = None) -> Dict:
+    """
+    Devuelve a Rutinas el mismo contexto semÃ¡ntico que Monitor.
+    La rutina del dÃ­a tiene prioridad; el cuestionario reciente queda como
+    fallback y como enlace clÃ­nico para crear la nueva ejecuciÃ³n RUN.
+    """
+    return get_monitor_link_context(user_id=user_id, day=day)
+
+
+
+# ============================================================
+# FASE 5 — Baseline histórico compartido + normalización UI
+# ============================================================
+# Convención consolidada:
+# - baseline_tests = fuente histórica persistida
+# - get_latest_baseline_reference(...) = API principal
+# - get_latest_valid_baseline(...) = solo fallback compatible
+# Estos helpers evitan parsing repetido en Monitor y Cuestionario.
+
+BASELINE_HISTORY_SOURCE = "baseline_tests"
+
+
+def _safe_baseline_payload_from_reference(ref: Optional[Dict]) -> Dict:
+    src = ref if isinstance(ref, dict) else {}
+    for key in ("baseline", "baseline_payload", "latest_baseline_payload"):
+        value = src.get(key)
+        if isinstance(value, dict):
+            return value
+    raw_json = src.get("baseline_json")
+    decoded = _json_loads_safe(raw_json)
+    return decoded if isinstance(decoded, dict) else {}
+
+
+def _safe_baseline_summary_from_reference(ref: Optional[Dict], baseline_payload: Optional[Dict] = None) -> Dict:
+    src = ref if isinstance(ref, dict) else {}
+    for key in ("summary", "latest_baseline_summary"):
+        value = src.get(key)
+        if isinstance(value, dict):
+            return value
+    return _baseline_summary_from_payload(baseline_payload if isinstance(baseline_payload, dict) else {})
+
+
+def _baseline_reference_id(ref: Optional[Dict]):
+    src = ref if isinstance(ref, dict) else {}
+    return src.get("baseline_test_id") or src.get("latest_baseline_test_id") or src.get("id")
+
+
+def _baseline_reference_created_at(ref: Optional[Dict]):
+    src = ref if isinstance(ref, dict) else {}
+    return src.get("created_at") or src.get("created_at_iso") or src.get("latest_baseline_ts")
+
+
+def _baseline_reference_source(ref: Optional[Dict]) -> str:
+    src = ref if isinstance(ref, dict) else {}
+    return str(src.get("history_source") or src.get("source") or src.get("latest_baseline_source") or BASELINE_HISTORY_SOURCE).strip() or BASELINE_HISTORY_SOURCE
+
+
+def _baseline_source_label(source: Optional[str]) -> str:
+    source_txt = str(source or "").strip() or BASELINE_HISTORY_SOURCE
+    if source_txt == BASELINE_HISTORY_SOURCE:
+        return "Histórico compartido"
+    if source_txt in {"baseline_db", "db", "database"}:
+        return "Histórico DB"
+    return source_txt
+
+
+def _baseline_status_label(ref: Optional[Dict], baseline_payload: Optional[Dict] = None) -> str:
+    src = ref if isinstance(ref, dict) else {}
+    if not src:
+        return "Pendiente"
+    if src.get("status"):
+        return str(src.get("status"))
+    if src.get("is_valid") is False:
+        return "Pendiente"
+    payload = baseline_payload if isinstance(baseline_payload, dict) else _safe_baseline_payload_from_reference(src)
+    return "Completada" if bool(payload) else "Pendiente"
+
+
+def normalize_baseline_reference_for_ui(ref: Optional[Dict]) -> Dict:
+    """Normaliza cualquier referencia de baseline a una forma lista para UI.
+
+    Salida común para Monitor y Cuestionario:
+    - baseline_test_id
+    - created_at / created_at_raw
+    - baseline / baseline_payload
+    - summary
+    - source / history_source / source_label
+    - has_baseline / is_valid / status_label
+    - campos latest_* compatibles con calibration-store legacy
+    """
+    src = ref if isinstance(ref, dict) else {}
+    baseline_payload = _safe_baseline_payload_from_reference(src)
+    summary = _safe_baseline_summary_from_reference(src, baseline_payload)
+    baseline_test_id = _baseline_reference_id(src)
+    created_at = _baseline_reference_created_at(src)
+    source = _baseline_reference_source(src)
+    has_baseline = bool(src) and bool(baseline_payload)
+    is_valid = bool(src.get("is_valid", has_baseline)) if src else False
+    status_label = _baseline_status_label(src, baseline_payload)
+
+    normalized = dict(src)
+    normalized.update({
+        "has_baseline": has_baseline,
+        "baseline": baseline_payload,
+        "baseline_payload": baseline_payload,
+        "payload": baseline_payload,
+        "summary": summary,
+        "baseline_test_id": baseline_test_id,
+        "created_at": created_at,
+        "created_at_raw": created_at,
+        "source": source,
+        "history_source": BASELINE_HISTORY_SOURCE,
+        "source_label": _baseline_source_label(source),
+        "is_history_reference": True,
+        "is_valid": is_valid,
+        "status": status_label,
+        "status_label": status_label,
+        "latest_baseline_test_id": baseline_test_id,
+        "latest_baseline_ts": created_at,
+        "latest_baseline_payload": baseline_payload,
+        "latest_baseline_summary": summary,
+        "latest_baseline_source": source,
+    })
+    return normalized
+
+
+def empty_baseline_history_reference() -> Dict:
+    """Referencia vacía estable para stores/UI cuando todavía no hay baseline."""
+    return normalize_baseline_reference_for_ui({
+        "baseline_test_id": None,
+        "created_at": None,
+        "baseline": {},
+        "summary": {},
+        "source": BASELINE_HISTORY_SOURCE,
+        "history_source": BASELINE_HISTORY_SOURCE,
+        "is_valid": False,
+        "status": "Pendiente",
+    })
+
+
+def get_latest_baseline_reference_for_ui(*, user_id: int, allow_fallback: bool = True) -> Dict:
+    """Lee y normaliza la referencia histórica para UI desde la API principal."""
+    ref = None
+    try:
+        ref = get_latest_baseline_reference(user_id=user_id)
+    except Exception:
+        ref = None
+
+    if not ref and allow_fallback:
+        try:
+            ref = get_latest_valid_baseline(user_id=user_id)
+        except Exception:
+            ref = None
+
+    if not ref:
+        return empty_baseline_history_reference()
+    return normalize_baseline_reference_for_ui(ref)
+
+
+def get_latest_baseline_history_legacy_fields(*, user_id: int, allow_fallback: bool = True) -> Dict:
+    """Devuelve los campos latest_* que usa el calibration-store legacy de Monitor."""
+    ref = get_latest_baseline_reference_for_ui(user_id=user_id, allow_fallback=allow_fallback)
+    return {
+        "latest_baseline_test_id": ref.get("latest_baseline_test_id"),
+        "latest_baseline_ts": ref.get("latest_baseline_ts"),
+        "latest_baseline_payload": ref.get("latest_baseline_payload") if isinstance(ref.get("latest_baseline_payload"), dict) else {},
+        "latest_baseline_summary": ref.get("latest_baseline_summary") if isinstance(ref.get("latest_baseline_summary"), dict) else {},
+        "latest_baseline_source": ref.get("latest_baseline_source"),
+    }
+
+
+
+def get_baseline_reference_by_id_for_ui(*, user_id: int, baseline_test_id: int) -> Dict:
+    """Lee un baseline_tests concreto y lo devuelve con la misma normalización UI."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+
+    try:
+        bid = int(baseline_test_id)
+    except Exception:
+        return empty_baseline_history_reference()
+
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT *
+            FROM baseline_tests
+            WHERE user_id=? AND id=?
+            LIMIT 1
+            """,
+            (uid, bid),
+        ).fetchone()
+
+    if not row:
+        return empty_baseline_history_reference()
+
+    out = dict(row)
+    baseline_payload = _json_loads_safe(out.get("baseline_json"))
+    if not isinstance(baseline_payload, dict):
+        baseline_payload = {}
+
+    out["baseline"] = baseline_payload
+    out["baseline_payload"] = baseline_payload
+    out["baseline_test_id"] = out.get("id")
+    out["summary"] = _baseline_summary_from_payload(baseline_payload)
+    out["source"] = BASELINE_HISTORY_SOURCE
+    out["history_source"] = BASELINE_HISTORY_SOURCE
+    out["is_history_reference"] = True
+    return normalize_baseline_reference_for_ui(out)
+
+
+def get_baseline_history_legacy_fields_by_id(*, user_id: int, baseline_test_id: int) -> Dict:
+    """Devuelve latest_* para un baseline histórico concreto, sin activar sesión."""
+    ref = get_baseline_reference_by_id_for_ui(user_id=user_id, baseline_test_id=baseline_test_id)
+    return {
+        "latest_baseline_test_id": ref.get("latest_baseline_test_id"),
+        "latest_baseline_ts": ref.get("latest_baseline_ts"),
+        "latest_baseline_payload": ref.get("latest_baseline_payload") if isinstance(ref.get("latest_baseline_payload"), dict) else {},
+        "latest_baseline_summary": ref.get("latest_baseline_summary") if isinstance(ref.get("latest_baseline_summary"), dict) else {},
+        "latest_baseline_source": ref.get("latest_baseline_source"),
+    }
+
+
+def list_baseline_tests_for_user(*, user_id: int, limit: int = 50) -> List[Dict]:
+    """Lista baseline_tests normalizados para historial de calibraciones."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+
+    lim = max(1, min(int(limit or 50), 500))
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                b.*,
+                s.kind AS sensor_kind,
+                s.started_at AS sensor_started_at,
+                s.ended_at AS sensor_ended_at,
+                s.mode AS sensor_mode,
+                s.sport AS sensor_sport
+            FROM baseline_tests b
+            LEFT JOIN sensor_sessions s ON s.id = b.sensor_session_id
+            WHERE b.user_id=?
+            ORDER BY datetime(b.created_at) DESC, b.id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+
+    out: List[Dict] = []
+    for r in rows:
+        item = dict(r)
+        baseline_payload = _json_loads_safe(item.get("baseline_json"))
+        if not isinstance(baseline_payload, dict):
+            baseline_payload = {}
+        item["baseline"] = baseline_payload
+        item["baseline_payload"] = baseline_payload
+        item["baseline_test_id"] = item.get("id")
+        item["summary"] = _baseline_summary_from_payload(baseline_payload)
+        item["source"] = BASELINE_HISTORY_SOURCE
+        item["history_source"] = BASELINE_HISTORY_SOURCE
+        item["is_history_reference"] = True
+
+        normalized = normalize_baseline_reference_for_ui(item)
+        normalized.update({
+            "id": item.get("id"),
+            "sensor_session_id": item.get("sensor_session_id"),
+            "sensor_kind": item.get("sensor_kind"),
+            "sensor_started_at": item.get("sensor_started_at"),
+            "sensor_ended_at": item.get("sensor_ended_at"),
+            "sensor_mode": item.get("sensor_mode"),
+            "sensor_sport": item.get("sensor_sport"),
+        })
+        out.append(normalized)
+
+    return out
+
+
 def upsert_user_posture_settings(*, user_id: int, thresholds: Dict) -> None:
     uid = resolve_user_id(user_id)
     if uid is None:
@@ -1464,6 +1958,8 @@ def upsert_user_posture_settings(*, user_id: int, thresholds: Dict) -> None:
         thresholds = {}
     if not isinstance(thresholds, dict):
         raise ValueError("thresholds debe ser dict")
+
+    normalized = _normalize_posture_settings_payload(thresholds)
 
     with _connect() as conn:
         conn.execute(
@@ -1475,7 +1971,7 @@ def upsert_user_posture_settings(*, user_id: int, thresholds: Dict) -> None:
                 thresholds_json=excluded.thresholds_json,
                 updated_at=CURRENT_TIMESTAMP
             """,
-            (uid, _json_dumps_safe(thresholds)),
+            (uid, _json_dumps_safe(normalized)),
         )
         conn.commit()
 
@@ -1494,10 +1990,42 @@ def get_user_posture_settings(*, user_id: int) -> Optional[Dict]:
     if not row:
         return None
 
-    thresholds = _json_loads_safe(row["thresholds_json"])
-    if not isinstance(thresholds, dict):
-        thresholds = {}
-    return {"user_id": uid, "thresholds": thresholds, "updated_at": row["updated_at"]}
+    settings = _json_loads_safe(row["thresholds_json"])
+    if not isinstance(settings, dict):
+        settings = {}
+
+    normalized = _normalize_posture_settings_payload(settings)
+    return {
+        "user_id": uid,
+        "settings": normalized,
+        "thresholds": normalized.get("thresholds") or {},
+        "adaptation": normalized.get("adaptation") or {},
+        "version": normalized.get("version") or "wizard_v2",
+        "updated_at": row["updated_at"],
+    }
+
+
+
+def get_user_posture_settings_status(*, user_id: int) -> str:
+    """Estado compacto de user_posture_settings para UI."""
+    try:
+        settings_payload = get_user_posture_settings(user_id=int(user_id))
+    except Exception:
+        settings_payload = None
+
+    if not isinstance(settings_payload, dict):
+        return "Pendientes"
+
+    thresholds = settings_payload.get("thresholds")
+    settings_root = settings_payload.get("settings")
+    if isinstance(thresholds, dict) and bool(thresholds):
+        return "Guardados ✓"
+    if isinstance(settings_root, dict):
+        if isinstance(settings_root.get("thresholds"), dict) and bool(settings_root.get("thresholds")):
+            return "Guardados ✓"
+        if bool(settings_root):
+            return "Guardados ✓"
+    return "Pendientes"
 
 
 def create_baseline_test(*, user_id: int, sensor_session_id: Optional[int], baseline: Dict) -> int:
@@ -1529,6 +2057,33 @@ def create_baseline_test(*, user_id: int, sensor_session_id: Optional[int], base
 
 
 def get_latest_baseline(*, user_id: int) -> Optional[Dict]:
+    """Compatibilidad: devuelve el baseline histórico usando la fuente de verdad compartida.
+
+    Mantiene el nombre legacy para no romper vistas antiguas, pero ahora reutiliza
+    la misma normalización que Monitor y Cuestionario deben compartir.
+    """
+    ref = get_latest_baseline_reference(user_id=user_id)
+    if not ref:
+        return None
+
+    out = dict(ref)
+    if not isinstance(out.get("baseline"), dict):
+        out["baseline"] = {}
+    if "summary" not in out or not isinstance(out.get("summary"), dict):
+        out["summary"] = _baseline_summary_from_payload(out.get("baseline"))
+    if "baseline_test_id" not in out:
+        out["baseline_test_id"] = out.get("id")
+    return out
+
+def get_latest_valid_baseline(*, user_id: int) -> Optional[Dict]:
+    """
+    Devuelve la última calibración/baseline válida para monitorización.
+
+    Criterios mínimos de validez MVP:
+    - existe baseline_tests
+    - si tiene sensor_session_id, la sensor_session existe y está cerrada
+    - payload baseline_json se parsea y se adjunta como `baseline`
+    """
     uid = resolve_user_id(user_id)
     if uid is None:
         raise ValueError("user_id inválido")
@@ -1536,21 +2091,382 @@ def get_latest_baseline(*, user_id: int) -> Optional[Dict]:
     with _connect() as conn:
         row = conn.execute(
             """
+            SELECT
+                b.*, 
+                s.kind AS sensor_kind,
+                s.started_at AS sensor_started_at,
+                s.ended_at AS sensor_ended_at,
+                s.mode AS sensor_mode,
+                s.sport AS sensor_sport
+            FROM baseline_tests b
+            LEFT JOIN sensor_sessions s ON s.id = b.sensor_session_id
+            WHERE b.user_id = ?
+            ORDER BY datetime(b.created_at) DESC, b.id DESC
+            """,
+            (uid,),
+        ).fetchall()
+
+    for r in row:
+        out = dict(r)
+        baseline_payload = _json_loads_safe(out.get("baseline_json"))
+        if not isinstance(baseline_payload, dict):
+            baseline_payload = {}
+
+        sensor_session_id = out.get("sensor_session_id")
+        sensor_ok = True
+        if sensor_session_id is not None:
+            sensor_ok = bool((out.get("sensor_kind") or "") == "baseline" and out.get("sensor_ended_at"))
+
+        n_samples = 0
+        try:
+            n_samples = int(baseline_payload.get("n_samples") or 0)
+        except Exception:
+            n_samples = 0
+
+        payload_ok = bool(baseline_payload) and (n_samples > 0 or bool(baseline_payload.get("rom")) or bool(baseline_payload.get("stability")))
+        if sensor_ok and payload_ok:
+            out["baseline"] = baseline_payload
+            out["baseline_test_id"] = out.get("id")
+            out["summary"] = _baseline_summary_from_payload(baseline_payload)
+            out["is_valid"] = True
+            out["source"] = "baseline_db"
+            out["history_source"] = "baseline_tests"
+            return out
+
+    return None
+
+
+def _infer_monitor_mode_from_questionnaire_payload(payload: Optional[Dict]) -> str:
+    payload = payload if isinstance(payload, dict) else {}
+    profile = payload.get("profile") if isinstance(payload.get("profile"), dict) else {}
+    daily = payload.get("daily") if isinstance(payload.get("daily"), dict) else {}
+
+    desk_job = str(profile.get("desk_job") or "").strip().lower()
+    session_type = str(daily.get("session_type") or "").strip().lower()
+    goal_txt = str(daily.get("goal") or "").strip().lower()
+
+    if desk_job == "desk":
+        return "office"
+    if session_type in {"recovery", "light"} and ("rehab" in goal_txt or "movilidad" in goal_txt or "dolor" in goal_txt):
+        return "rehab"
+    return "train"
+
+
+def _infer_planned_session_name_from_questionnaire_payload(payload: Optional[Dict]) -> str:
+    payload = payload if isinstance(payload, dict) else {}
+    daily = payload.get("daily") if isinstance(payload.get("daily"), dict) else {}
+    goal = str(daily.get("goal") or "").strip()
+    session_type = str(daily.get("session_type") or "normal").strip().lower() or "normal"
+
+    label_map = {
+        "recovery": "Descanso / recuperación",
+        "light": "Entreno suave",
+        "normal": "Entreno normal",
+        "hard": "Entreno intenso",
+    }
+    base = label_map.get(session_type, "Entreno normal")
+    if goal:
+        return f"{base} · {goal}"
+    return base
+
+
+def _normalize_link_day(day_value: Optional[date]) -> tuple[date, str]:
+    if day_value is None:
+        d_obj = date.today()
+    elif isinstance(day_value, datetime):
+        d_obj = day_value.date()
+    elif isinstance(day_value, date):
+        d_obj = day_value
+    else:
+        d_obj = date.fromisoformat(str(day_value)[:10])
+    return d_obj, d_obj.isoformat()
+
+
+def _normalize_routine_plan_for_context(plan_payload: Optional[Dict], fallback_day: str) -> Dict:
+    plan_payload = plan_payload if isinstance(plan_payload, dict) else {}
+    mode = str(plan_payload.get("mode") or plan_payload.get("monitor_mode") or "train").strip() or "train"
+    sport = str(plan_payload.get("sport") or "gym").strip() or "gym"
+    session_type = str(plan_payload.get("session_type") or "").strip() or None
+    goal = str(plan_payload.get("goal") or "").strip() or None
+    title = (
+        plan_payload.get("planned_session_name")
+        or plan_payload.get("title")
+        or plan_payload.get("name")
+        or plan_payload.get("session_name")
+        or f"Rutina del {fallback_day}"
+    )
+    return {
+        "plan": plan_payload,
+        "planned_session_name": str(title),
+        "mode": mode,
+        "sport": sport,
+        "session_type": session_type,
+        "goal": goal,
+    }
+
+
+def _extract_questionnaire_daily_payload(payload: Optional[Dict]) -> Dict:
+    payload = payload if isinstance(payload, dict) else {}
+    daily = payload.get("daily") if isinstance(payload.get("daily"), dict) else {}
+    return daily
+
+
+def _extract_goal_from_questionnaire_payload(payload: Optional[Dict]) -> Optional[str]:
+    daily = _extract_questionnaire_daily_payload(payload)
+    profile = payload.get("profile") if isinstance(payload, dict) and isinstance(payload.get("profile"), dict) else {}
+    goal = str(daily.get("goal") or profile.get("goal") or "").strip()
+    return goal or None
+
+
+def _infer_sport_from_questionnaire_payload(payload: Optional[Dict]) -> str:
+    payload = payload if isinstance(payload, dict) else {}
+    profile = payload.get("profile") if isinstance(payload.get("profile"), dict) else {}
+    daily = payload.get("daily") if isinstance(payload.get("daily"), dict) else {}
+    raw = str(daily.get("sport") or profile.get("sport") or profile.get("activity") or "").strip().lower()
+    if raw in {"run", "running", "correr", "runner"}:
+        return "running"
+    if raw in {"bike", "cycling", "bici", "ciclismo"}:
+        return "cycling"
+    if raw in {"office", "desk", "trabajo"}:
+        return "office"
+    return "gym"
+
+
+def create_routine_session(
+    user_id: int,
+    day: date,
+    plan_json: Dict,
+    notes: Optional[str] = None,
+) -> int:
+    """Crea una rutina ejecutable y guarda el plan/contexto usado por RUN."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id invÃ¡lido")
+    _d_obj, d_iso = _normalize_link_day(day)
+    payload = plan_json if isinstance(plan_json, dict) else {}
+
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO routine_sessions(user_id, day, plan_json, notes)
+            VALUES (?,?,?,?)
+            """,
+            (int(uid), d_iso, _json_dumps_safe(payload), notes),
+        )
+        conn.commit()
+        return int(cur.lastrowid)
+
+
+def finish_routine_session(
+    routine_session_id: int,
+    score_avg: float,
+    notes: Optional[str] = None,
+    ended_at: Optional[datetime] = None,
+) -> None:
+    """Cierra una routine_session con score medio y notas opcionales."""
+    if not isinstance(routine_session_id, int):
+        raise ValueError("routine_session_id invÃ¡lido")
+    ea = (ended_at or datetime.now()).isoformat(timespec="seconds")
+    try:
+        score = float(score_avg)
+    except Exception:
+        score = 0.0
+
+    with _connect() as conn:
+        if notes is None:
+            conn.execute(
+                "UPDATE routine_sessions SET ended_at=?, score_avg=? WHERE id=?",
+                (ea, score, int(routine_session_id)),
+            )
+        else:
+            conn.execute(
+                "UPDATE routine_sessions SET ended_at=?, score_avg=?, notes=? WHERE id=?",
+                (ea, score, notes, int(routine_session_id)),
+            )
+        conn.commit()
+
+
+def insert_exercise_set(
+    routine_session_id: int,
+    exercise_name: str,
+    set_index: int,
+    reps_target: Optional[int],
+    reps_valid: Optional[int],
+    score_avg: Optional[float],
+    thor_red_s: Optional[float],
+    lum_red_s: Optional[float],
+    comp_avg: Optional[float],
+    comp_peak: Optional[float],
+) -> int:
+    """Inserta el resumen de un set/ejercicio enlazado a una rutina."""
+    if not isinstance(routine_session_id, int):
+        raise ValueError("routine_session_id invÃ¡lido")
+
+    with _connect() as conn:
+        cur = conn.execute(
+            """
+            INSERT INTO exercise_sets(
+                routine_session_id, exercise_name, set_index,
+                reps_target, reps_valid, score_avg,
+                thor_red_s, lum_red_s, comp_avg, comp_peak
+            )
+            VALUES (?,?,?,?,?,?,?,?,?,?)
+            """,
+            (
+                int(routine_session_id),
+                str(exercise_name or "Ejercicio"),
+                int(set_index or 1),
+                None if reps_target is None else int(reps_target),
+                None if reps_valid is None else int(reps_valid),
+                None if score_avg is None else float(score_avg),
+                None if thor_red_s is None else float(thor_red_s),
+                None if lum_red_s is None else float(lum_red_s),
+                None if comp_avg is None else float(comp_avg),
+                None if comp_peak is None else float(comp_peak),
+            ),
+        )
+        conn.commit()
+        return int(cur.lastrowid)
+
+
+def update_routine_session_sensor_link(
+    routine_session_id: int,
+    sensor_session_id: int,
+    questionnaire_session_id: Optional[int] = None,
+) -> None:
+    """
+    Enlaza la rutina con su sensor_session dentro de plan_json.
+    sensor_sessions.routine_session_id mantiene la relaciÃ³n principal y este
+    bloque deja el contexto visible tambiÃ©n desde Rutinas.
+    """
+    if not isinstance(routine_session_id, int):
+        raise ValueError("routine_session_id invÃ¡lido")
+    if not isinstance(sensor_session_id, int):
+        raise ValueError("sensor_session_id invÃ¡lido")
+
+    with _connect() as conn:
+        row = conn.execute("SELECT plan_json FROM routine_sessions WHERE id=?", (int(routine_session_id),)).fetchone()
+        plan_payload = _json_loads_safe(row["plan_json"]) if row else {}
+        if not isinstance(plan_payload, dict):
+            plan_payload = {}
+        db_link = plan_payload.get("db_link") if isinstance(plan_payload.get("db_link"), dict) else {}
+        db_link["routine_session_id"] = int(routine_session_id)
+        db_link["sensor_session_id"] = int(sensor_session_id)
+        if questionnaire_session_id is not None:
+            try:
+                db_link["questionnaire_session_id"] = int(questionnaire_session_id)
+            except Exception:
+                pass
+        plan_payload["db_link"] = db_link
+        conn.execute(
+            "UPDATE routine_sessions SET plan_json=? WHERE id=?",
+            (_json_dumps_safe(plan_payload), int(routine_session_id)),
+        )
+        conn.commit()
+
+
+def get_monitor_link_context(*, user_id: int, day: Optional[date] = None) -> Dict:
+    """
+    Devuelve el contexto enlazable más reciente para Monitor.
+
+    Prioridad:
+    1) rutina del día si existe
+    2) último cuestionario con payload útil
+
+    Esto deja resuelto en DB el puente para que Monitor no tenga que inventar
+    `questionnaire_session_id`, `routine_session_id` o `planned_session_name`.
+    """
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+
+    _d_obj, d = _normalize_link_day(day)
+    out = {
+        "user_id": uid,
+        "day": d,
+        "questionnaire_session_id": None,
+        "routine_session_id": None,
+        "planned_session_name": None,
+        "mode": "train",
+        "sport": "gym",
+        "session_type": None,
+        "goal": None,
+        "source": None,
+        "questionnaire_payload": {},
+        "routine_payload": {},
+    }
+
+    with _connect() as conn:
+        routine_row = conn.execute(
+            """
             SELECT *
-            FROM baseline_tests
+            FROM routine_sessions
+            WHERE user_id=? AND day=?
+            ORDER BY datetime(COALESCE(ended_at, started_at)) DESC, id DESC
+            LIMIT 1
+            """,
+            (uid, d),
+        ).fetchone()
+
+        if routine_row:
+            rr = dict(routine_row)
+            plan_payload = _json_loads_safe(rr.get("plan_json"))
+            if not isinstance(plan_payload, dict):
+                plan_payload = {}
+            routine_ctx = _normalize_routine_plan_for_context(plan_payload, d)
+            out.update({
+                "routine_session_id": int(rr.get("id")),
+                "planned_session_name": rr.get("notes") or routine_ctx.get("planned_session_name") or f"Rutina del {d}",
+                "mode": routine_ctx.get("mode") or "train",
+                "sport": routine_ctx.get("sport") or "gym",
+                "session_type": routine_ctx.get("session_type"),
+                "goal": routine_ctx.get("goal"),
+                "source": "routine_session",
+                "routine_payload": routine_ctx.get("plan") or {},
+            })
+
+        q_row = conn.execute(
+            """
+            SELECT *
+            FROM questionnaire_sessions
             WHERE user_id=?
-            ORDER BY datetime(created_at) DESC
+            ORDER BY
+                CASE WHEN completed_at IS NULL THEN 1 ELSE 0 END ASC,
+                datetime(COALESCE(completed_at, started_at)) DESC,
+                id DESC
             LIMIT 1
             """,
             (uid,),
         ).fetchone()
 
-    if not row:
-        return None
+    if q_row:
+        qq = dict(q_row)
+        payload = _json_loads_safe(qq.get("payload_json"))
+        if not isinstance(payload, dict):
+            payload = {}
+        daily_payload = _extract_questionnaire_daily_payload(payload)
+        goal = _extract_goal_from_questionnaire_payload(payload)
+        out["questionnaire_payload"] = payload
+        out["questionnaire_session_id"] = int(qq.get("id")) if qq.get("id") is not None else None
+        out["session_type"] = out.get("session_type") or daily_payload.get("session_type")
+        out["goal"] = out.get("goal") or goal
+        if out.get("source") is None:
+            out["planned_session_name"] = _infer_planned_session_name_from_questionnaire_payload(payload)
+            out["mode"] = _infer_monitor_mode_from_questionnaire_payload(payload)
+            out["sport"] = _infer_sport_from_questionnaire_payload(payload)
+            out["source"] = "questionnaire_session"
 
-    out = dict(row)
-    out["baseline"] = _json_loads_safe(out.get("baseline_json"))
+    if not out.get("planned_session_name"):
+        out["planned_session_name"] = "Entreno normal"
+    if not out.get("mode"):
+        out["mode"] = "train"
+    if not out.get("sport"):
+        out["sport"] = "gym"
+    if out.get("goal") is None:
+        out["goal"] = ""
+
     return out
+
 
 
 # ============================================================
@@ -1672,12 +2588,227 @@ def get_recommended_routine_today(*, user_id: int, day: Optional[date] = None) -
         ]
         title = "Rutina recomendada (Corrección general)"
 
+    link_ctx = get_monitor_link_context(user_id=uid, day=d)
+    questionnaire_payload = link_ctx.get("questionnaire_payload") if isinstance(link_ctx, dict) else {}
+    if not isinstance(questionnaire_payload, dict):
+        questionnaire_payload = {}
+    daily_payload = questionnaire_payload.get("daily") if isinstance(questionnaire_payload.get("daily"), dict) else {}
+    session_type = link_ctx.get("session_type") or daily_payload.get("session_type") or "normal"
+    mode = link_ctx.get("mode") or _infer_monitor_mode_from_questionnaire_payload(questionnaire_payload)
+    sport = link_ctx.get("sport") or "gym"
+    planned_session_name = link_ctx.get("planned_session_name") or title
+
     return {
         "title": title,
+        "planned_session_name": planned_session_name,
+        "mode": mode,
+        "sport": sport,
+        "session_type": session_type,
+        "goal": link_ctx.get("goal") or daily_payload.get("goal") or "",
+        "questionnaire_session_id": link_ctx.get("questionnaire_session_id"),
+        "routine_session_id": link_ctx.get("routine_session_id"),
+        "source": link_ctx.get("source") or "routine_recommendation",
         "focus": focus,
         "inputs": {
             "pain": {"neck": pain_neck, "thor": pain_thor, "lum": pain_lum},
             "daily": {"thor_red_s": thor_red, "lum_red_s": lum_red, "comp_avg": comp},
         },
+        "questionnaire_payload": questionnaire_payload,
         "exercises": exercises,
     }
+
+
+
+
+
+# compat-padding-step-1
+# compat-padding-step-1
+
+# ============================================================
+# Exportación de informe Axisfit — helpers de lectura para PDF/CSV
+# ============================================================
+def list_recent_sensor_sessions_for_user(*, user_id: int, limit: int = 20) -> List[Dict]:
+    """Devuelve sesiones de sensor recientes con resumen agregado si existe.
+
+    Uso principal:
+    - Informe PDF del monitor
+    - Resumen rápido
+    - CSV técnico
+    """
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 20), 200))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                s.id,
+                s.user_id,
+                s.kind,
+                s.mode,
+                s.sport,
+                s.planned_session_name,
+                s.questionnaire_session_id,
+                s.routine_session_id,
+                s.baseline_test_id,
+                s.context_json,
+                s.started_at,
+                s.ended_at,
+                ss.duration_s,
+                ss.thor_red_s,
+                ss.lum_red_s,
+                ss.alerts_count,
+                ss.comp_avg,
+                ss.comp_peak,
+                ss.risk_index,
+                ss.created_at AS summary_created_at
+            FROM sensor_sessions s
+            LEFT JOIN session_summary ss ON ss.session_id = s.id
+            WHERE s.user_id=?
+            ORDER BY datetime(COALESCE(s.ended_at, s.started_at)) DESC, s.id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+
+    out: List[Dict] = []
+    for r in rows:
+        d = dict(r)
+        d["context"] = _json_loads_safe(d.get("context_json")) if d.get("context_json") else {}
+        out.append(d)
+    return out
+
+
+def list_daily_summaries_for_user(*, user_id: int, limit: int = 14) -> List[Dict]:
+    """Devuelve los últimos daily_summary del usuario para evolución diaria/semanal."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 14), 120))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT *
+            FROM daily_summary
+            WHERE user_id=?
+            ORDER BY day DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def list_routine_sessions_for_user(*, user_id: int, limit: int = 20) -> List[Dict]:
+    """Devuelve rutinas recientes con plan_json normalizado."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 20), 200))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT *
+            FROM routine_sessions
+            WHERE user_id=?
+            ORDER BY datetime(COALESCE(ended_at, started_at)) DESC, day DESC, id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+
+    out: List[Dict] = []
+    for r in rows:
+        d = dict(r)
+        d["plan"] = _json_loads_safe(d.get("plan_json")) if d.get("plan_json") else {}
+        out.append(d)
+    return out
+
+
+def list_exercise_sets_for_user(*, user_id: int, limit: int = 50) -> List[Dict]:
+    """Devuelve sets recientes enlazados a routine_sessions del usuario."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 50), 500))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                es.*,
+                rs.day,
+                rs.score_avg AS routine_score_avg,
+                rs.notes AS routine_notes
+            FROM exercise_sets es
+            JOIN routine_sessions rs ON rs.id = es.routine_session_id
+            WHERE rs.user_id=?
+            ORDER BY datetime(es.created_at) DESC, es.id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def list_sensor_raw_samples_for_user(*, user_id: int, limit: int = 500) -> List[Dict]:
+    """Devuelve muestras RAW recientes de todas las sesiones del usuario."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 500), 5000))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                r.*,
+                s.kind,
+                s.mode,
+                s.sport,
+                s.planned_session_name,
+                s.started_at,
+                s.ended_at
+            FROM sensor_samples_raw r
+            JOIN sensor_sessions s ON s.id = r.session_id
+            WHERE s.user_id=?
+            ORDER BY datetime(s.started_at) DESC, r.ts_ms DESC, r.id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def list_sensor_agg_samples_for_user(*, user_id: int, limit: int = 500) -> List[Dict]:
+    """Devuelve muestras agregadas recientes de todas las sesiones del usuario."""
+    uid = resolve_user_id(user_id)
+    if uid is None:
+        raise ValueError("user_id inválido")
+    lim = max(1, min(int(limit or 500), 5000))
+
+    with _connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT
+                a.*,
+                s.kind,
+                s.mode,
+                s.sport,
+                s.planned_session_name,
+                s.started_at,
+                s.ended_at
+            FROM sensor_samples_agg a
+            JOIN sensor_sessions s ON s.id = a.session_id
+            WHERE s.user_id=?
+            ORDER BY datetime(s.started_at) DESC, a.ts_s DESC, a.id DESC
+            LIMIT ?
+            """,
+            (uid, lim),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
