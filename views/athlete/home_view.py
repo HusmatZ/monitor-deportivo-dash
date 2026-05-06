@@ -13,6 +13,63 @@ CONTROL_HEIGHT_PX = 40      # Alto estándar para buscador y botón "Agregar otr
 TITLE_MB_PX = 10            # Margen inferior estándar para títulos
 BLOCK_MB_PX = 10            # Margen inferior estándar para bloques
 
+BLACK_TEXT = {"color": "#e2e8f0"}
+BLACK_MUTED = {"color": "rgba(226,232,240,.75)"}
+MONITOR_CARD_BG = "#0b1220"
+MONITOR_SUBCARD_BG = "rgba(2,6,23,.78)"
+MONITOR_SOFT_BG = "rgba(255,255,255,.10)"
+MONITOR_SOFT_BORDER = "1px solid rgba(255,255,255,.08)"
+MONITOR_PRIMARY_BTN = {
+    "background": "var(--bs-primary)",
+    "border": "1px solid var(--bs-primary)",
+    "color": "#ffffff",
+    "fontWeight": 600,
+}
+MONITOR_SECONDARY_BTN = {
+    "background": "rgba(255,255,255,.10)",
+    "border": "1px solid rgba(255,255,255,.10)",
+    "color": "#e2e8f0",
+    "fontWeight": 600,
+}
+MONITOR_DANGER_BTN = {
+    "background": "rgba(239,68,68,.18)",
+    "border": "1px solid rgba(239,68,68,.28)",
+    "color": "#fecaca",
+    "fontWeight": 600,
+}
+MONITOR_MODAL_HEADER_STYLE = {
+    "background": "#0b1220",
+    "color": "#e2e8f0",
+    "borderBottom": "1px solid rgba(255,255,255,.08)",
+    "borderTopLeftRadius": "12px",
+    "borderTopRightRadius": "12px",
+    "padding": "12px 16px",
+    "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.04)",
+}
+MONITOR_MODAL_BODY_STYLE = {
+    "background": "#0b1220",
+    "color": "#e2e8f0",
+    "padding": "12px 16px",
+    "borderLeft": "1px solid rgba(255,255,255,.04)",
+    "borderRight": "1px solid rgba(255,255,255,.04)",
+}
+MONITOR_MODAL_FOOTER_STYLE = {
+    "background": "#0b1220",
+    "color": "#e2e8f0",
+    "padding": "12px 16px",
+    "borderTop": "1px solid rgba(255,255,255,.08)",
+    "borderBottomLeftRadius": "12px",
+    "borderBottomRightRadius": "12px",
+    "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.04)",
+}
+MONITOR_INNER_CARD_STYLE = {
+    "width": "100%",
+    "background": MONITOR_SUBCARD_BG,
+    "borderRadius": "12px",
+    "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.06)",
+    "padding": "10px",
+}
+
 
 # -------------------------
 # Helpers de UI
@@ -30,17 +87,19 @@ def _fmt_id(session: dict) -> str:
 
 def _panel_style():
     return {
-        "border": "1px solid #e2e8f0",
-        "background": "#ffffff",
-        "borderRadius": "14px",
-        "boxShadow": "0 4px 14px rgba(15,23,42,.06)",
+        "border": "1px solid rgba(255,255,255,.04)",
+        "background": MONITOR_CARD_BG,
+        "borderRadius": "12px",
+        "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.04)",
+        "color": "#e2e8f0",
     }
 
 
 def _title_style():
     return {
-        "fontWeight": 600,
-        "color": "#334155",
+        "fontWeight": 700,
+        "fontSize": "13px",
+        "color": "#e2e8f0",
         "marginBottom": f"{TITLE_MB_PX}px",
     }
 
@@ -68,9 +127,10 @@ def _id_box_style():
         "minHeight": "42px",
         "height": "42px",
         "width": "260px",
-        "borderRadius": "10px",
-        "border": "1px solid #e2e8f0",
-        "background": "#f8fafc",
+        "borderRadius": "12px",
+        "border": "1px solid rgba(255,255,255,.08)",
+        "background": MONITOR_SUBCARD_BG,
+        "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.06)",
     }
 
 
@@ -139,7 +199,7 @@ def _coach_card(c: dict):
             style={"padding": "10px 14px"},
         ),
         className="mb-2",
-        style=_panel_style(),
+        style={**_panel_style(), **MONITOR_INNER_CARD_STYLE},
     )
 
 
@@ -165,7 +225,7 @@ def _coach_details_block(c: dict):
             html.Div(f"Turnos: {turnos}", className="mt-1"),
             _coach_bottom_bar(cid_val),
         ],
-        style={"paddingTop": "6px", "paddingBottom": "6px"},
+        style={"paddingTop": "6px", "paddingBottom": "6px", "color": "#e2e8f0"},
     )
 
 
@@ -183,6 +243,7 @@ def _status_card(title: str, name_key: str, is_on: bool, subtitle: str):
         size="sm",
         color=color,
         className="rounded-pill px-2",
+        style=MONITOR_PRIMARY_BTN if is_on else MONITOR_DANGER_BTN,
     )
     style = _panel_style()
     return dbc.Card(
@@ -199,12 +260,13 @@ def _status_card(title: str, name_key: str, is_on: bool, subtitle: str):
                     style={
                         "fontSize": "1.05rem",
                         "fontWeight": 700,
-                        "color": "#0f172a",
+                        "color": "#e2e8f0",
                     },
                 ),
                 pill_btn,
             ],
             className="py-2 px-2",
+            style={"color": "#e2e8f0"},
         ),
         style=style,
     )
@@ -249,7 +311,7 @@ def _battery_card(batt_on: bool, batt_pct):
                                 style={
                                     "fontSize": "1.5rem",
                                     "fontWeight": 800,
-                                    "color": "#0f172a",
+                                    "color": "#e2e8f0",
                                 },
                             ),
                             circle,
@@ -280,6 +342,7 @@ def _battery_card(batt_on: bool, batt_pct):
             "display": "flex",
             "alignItems": "center",
             "justifyContent": "center",
+            "background": MONITOR_SUBCARD_BG,
         },
     )
 
@@ -325,7 +388,7 @@ def _ble_card(ble_on: bool):
                                 style={
                                     "fontSize": "1.5rem",
                                     "fontWeight": 800,
-                                    "color": "#0f172a",
+                                    "color": "#e2e8f0",
                                 },
                             ),
                             circle,
@@ -356,6 +419,7 @@ def _ble_card(ble_on: bool):
             "display": "flex",
             "alignItems": "center",
             "justifyContent": "center",
+            "background": MONITOR_SUBCARD_BG,
         },
     )
 
@@ -392,7 +456,7 @@ def _firmware_card(subtitle: str):
                         style={
                             "fontSize": "1.3rem",
                             "fontWeight": 700,
-                            "color": "#0f172a",
+                            "color": "#e2e8f0",
                             "textAlign": "right",
                             "flex": "0 0 auto",
                         },
@@ -415,6 +479,7 @@ def _firmware_card(subtitle: str):
             "display": "flex",
             "alignItems": "center",
             "justifyContent": "center",
+            "background": MONITOR_SUBCARD_BG,
         },
     )
 
@@ -449,16 +514,18 @@ def _summary_button(title: str, main: str, secondary: str = None):
         html.Div(main, className="small"),
     ]
     if secondary:
-        children.append(html.Div(secondary, className="small text-muted"))
+        children.append(html.Div(secondary, className="small", style=BLACK_MUTED))
     return dbc.Button(
         children,
-        color="light",
+        color="secondary",
         className="w-100 text-start mb-2",
         style={
-            "border": "1px solid #e2e8f0",
-            "background": "#f8fafc",
-            "borderRadius": "10px",
+            "border": "1px solid rgba(255,255,255,.08)",
+            "background": MONITOR_SUBCARD_BG,
+            "borderRadius": "12px",
             "padding": "8px 10px",
+            "color": "#e2e8f0",
+            "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.06)",
         },
     )
 
@@ -496,7 +563,7 @@ def layout():
                 icon="success",
                 dismissable=True,
                 children="ID copiado al portapapeles.",
-                style={"position": "fixed", "top": 10, "right": 10, "zIndex": 1080},
+                style={"position": "fixed", "top": 10, "right": 10, "zIndex": 1080, "background": "#0b1220", "color": "#e2e8f0", "border": "1px solid rgba(255,255,255,.08)"},
             ),
 
             dcc.Interval(
@@ -514,16 +581,17 @@ def layout():
                 centered=True,
                 children=[
                     dbc.ModalHeader(
-                        dbc.ModalTitle("Error al enlazar"),
+                        dbc.ModalTitle("Error al enlazar", style={"color": "#e2e8f0", "fontWeight": 700, "fontSize": "16px"}),
                         close_button=False,
-                        style={"background": "#dc2626", "color": "#fff"},
+                        style=MONITOR_MODAL_HEADER_STYLE,
                     ),
                     dbc.ModalBody(
                         id="ath-link-error-body",
-                        style={"color": "#991b1b", "fontWeight": 600},
+                        style={**MONITOR_MODAL_BODY_STYLE, "color": "#fecaca", "fontWeight": 600},
                     ),
                     dbc.ModalFooter(
-                        dbc.Button("Cerrar", id="ath-link-error-close", color="danger")
+                        dbc.Button("Cerrar", id="ath-link-error-close", color="danger", style=MONITOR_DANGER_BTN),
+                        style=MONITOR_MODAL_FOOTER_STYLE,
                     ),
                 ],
             ),
@@ -561,7 +629,7 @@ def layout():
                                                             "fontWeight": 800,
                                                             "letterSpacing": "0.04em",
                                                             "fontSize": "1.25rem",
-                                                            "color": "#0f172a",
+                                                            "color": "#e2e8f0",
                                                             "lineHeight": "1",
                                                         },
                                                         className="me-2",
@@ -571,9 +639,10 @@ def layout():
                                                         target_id="ath-id-inline",
                                                         title="Copiar ID",
                                                         style={
-                                                            "border": "1px solid #e2e8f0",
-                                                            "background": "#ffffff",
-                                                            "borderRadius": "8px",
+                                                            "border": "1px solid rgba(255,255,255,.08)",
+                                                            "background": "rgba(255,255,255,.10)",
+                                                            "borderRadius": "10px",
+                                                            "color": "#e2e8f0",
                                                             "padding": "6px 12px",
                                                             "cursor": "pointer",
                                                             "lineHeight": "1",
@@ -593,6 +662,7 @@ def layout():
                                     html.Div(id="ath-link-pane"),
                                 ]
                             ),
+                            className="ax-card-black ax-card-black-stack axisfit-home-card",
                             style={**_card_style(), "width": "400px"},
                         ),
                         xs=12,
@@ -610,19 +680,22 @@ def layout():
                                                 "◀",
                                                 id="ath-week-prev",
                                                 size="sm",
-                                                color="light",
+                                                color="secondary",
                                                 className="me-2",
+                                                style={**MONITOR_SECONDARY_BTN, "minWidth": "38px"},
                                             ),
                                             html.Div(
                                                 id="ath-week-label",
                                                 className="fw-semibold flex-grow-1 text-center",
+                                                style={**BLACK_TEXT, "fontSize": "13px"},
                                             ),
                                             dbc.Button(
                                                 "▶",
                                                 id="ath-week-next",
                                                 size="sm",
-                                                color="light",
+                                                color="secondary",
                                                 className="ms-2",
+                                                style={**MONITOR_SECONDARY_BTN, "minWidth": "38px"},
                                             ),
                                         ],
                                         className="d-flex align-items-center mb-2",
@@ -634,7 +707,7 @@ def layout():
                                             color="link",
                                             size="sm",
                                             className="p-0",
-                                            style={"textDecoration": "underline"},
+                                            style={"textDecoration": "underline", "color": "#e2e8f0"},
                                         ),
                                         className="text-end mb-2",
                                     ),
@@ -644,7 +717,8 @@ def layout():
                                     ),
                                     html.Div(
                                         "Toca un día para ver plan, notas y recuperación.",
-                                        className="text-muted small mb-2",
+                                        className="small mb-2",
+                                        style=BLACK_MUTED,
                                     ),
                                     html.Div(
                                         id="ath-week-summary",
@@ -652,6 +726,7 @@ def layout():
                                     ),
                                 ]
                             ),
+                            className="ax-card-black ax-card-black-stack axisfit-home-card",
                             style={**_card_style(), "minWidth": "450px", "width": "450px"},
                         ),
                         xs=12,
@@ -698,8 +773,9 @@ def layout():
                                                 "display": "flex",
                                                 "width": "100%",
                                                 "height": "300px",
-                                                "background": "#000000",
-                                                "borderRadius": "8px",
+                                                "background": "rgba(2,6,23,.78)",
+                                                "borderRadius": "12px",
+                                                "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.06)",
                                                 "overflow": "hidden",
                                                 "padding": "8px",
                                                 "boxSizing": "border-box",
@@ -718,6 +794,7 @@ def layout():
                                 "width": "310px",
                                 "minWidth": "310px",
                             },
+                            className="ax-card-black ax-card-black-stack axisfit-home-card",
                         ),
                         xs=12,
                         md="auto",
@@ -733,12 +810,13 @@ def layout():
                 is_open=False,
                 size="lg",
                 children=[
-                    dbc.ModalHeader(dbc.ModalTitle("Información del entrenador")),
-                    dbc.ModalBody(id="ath-coach-info-body"),
+                    dbc.ModalHeader(dbc.ModalTitle("Información del entrenador", style={"color": "#e2e8f0", "fontWeight": 700, "fontSize": "16px"}), close_button=False, style=MONITOR_MODAL_HEADER_STYLE),
+                    dbc.ModalBody(id="ath-coach-info-body", style=MONITOR_MODAL_BODY_STYLE),
                     dbc.ModalFooter(
                         dbc.Button(
-                            "Cerrar", id="ath-coach-info-close", color="secondary"
-                        )
+                            "Cerrar", id="ath-coach-info-close", color="secondary", style=MONITOR_SECONDARY_BTN
+                        ),
+                        style=MONITOR_MODAL_FOOTER_STYLE,
                     ),
                 ],
             ),
@@ -748,13 +826,16 @@ def layout():
                 size="lg",
                 children=[
                     dbc.ModalHeader(
-                        dbc.ModalTitle("Mensajes con el entrenador")
+                        dbc.ModalTitle("Mensajes con el entrenador", style={"color": "#e2e8f0", "fontWeight": 700, "fontSize": "16px"}),
+                        close_button=False,
+                        style=MONITOR_MODAL_HEADER_STYLE,
                     ),
-                    dbc.ModalBody(id="ath-coach-msgs-body"),
+                    dbc.ModalBody(id="ath-coach-msgs-body", style=MONITOR_MODAL_BODY_STYLE),
                     dbc.ModalFooter(
                         dbc.Button(
-                            "Cerrar", id="ath-coach-msgs-close", color="secondary"
-                        )
+                            "Cerrar", id="ath-coach-msgs-close", color="secondary", style=MONITOR_SECONDARY_BTN
+                        ),
+                        style=MONITOR_MODAL_FOOTER_STYLE,
                     ),
                 ],
             ),
@@ -764,15 +845,19 @@ def layout():
                 size="lg",
                 children=[
                     dbc.ModalHeader(
-                        dbc.ModalTitle("Calendario de sesiones")
+                        dbc.ModalTitle("Calendario de sesiones", style={"color": "#e2e8f0", "fontWeight": 700, "fontSize": "16px"}),
+                        close_button=False,
+                        style=MONITOR_MODAL_HEADER_STYLE,
                     ),
-                    dbc.ModalBody(id="ath-calendar-body"),
+                    dbc.ModalBody(id="ath-calendar-body", style=MONITOR_MODAL_BODY_STYLE),
                     dbc.ModalFooter(
                         dbc.Button(
                             "Cerrar",
                             id="ath-calendar-close",
                             color="secondary",
-                        )
+                            style=MONITOR_SECONDARY_BTN,
+                        ),
+                        style=MONITOR_MODAL_FOOTER_STYLE,
                     ),
                 ],
             ),
@@ -782,7 +867,9 @@ def layout():
                 size="lg",
                 children=[
                     dbc.ModalHeader(
-                        dbc.ModalTitle(id="ath-day-modal-title")
+                        dbc.ModalTitle(id="ath-day-modal-title", style={"color": "#e2e8f0", "fontWeight": 700, "fontSize": "16px"}),
+                        close_button=False,
+                        style=MONITOR_MODAL_HEADER_STYLE,
                     ),
                     dbc.ModalBody(
                         [
@@ -800,12 +887,14 @@ def layout():
                                             placeholder="Lesión leve, tiempo, sensaciones...",
                                             rows=4,
                                             className="mb-2",
+                                            style={"background": "rgba(255,255,255,.10)", "border": "1px solid rgba(255,255,255,.10)", "color": "#e2e8f0"},
                                         ),
                                         dbc.Button(
                                             "Guardar nota",
                                             id="ath-notes-save",
                                             color="primary",
                                             size="sm",
+                                            style=MONITOR_PRIMARY_BTN,
                                         ),
                                         html.Span(
                                             id="ath-notes-feedback",
@@ -815,14 +904,17 @@ def layout():
                                 ),
                             ),
                             html.Div(id="ath-day-rec-section"),
-                        ]
+                        ],
+                        style=MONITOR_MODAL_BODY_STYLE,
                     ),
                     dbc.ModalFooter(
                         dbc.Button(
                             "Cerrar",
                             id="ath-day-modal-close",
                             color="secondary",
-                        )
+                            style=MONITOR_SECONDARY_BTN,
+                        ),
+                        style=MONITOR_MODAL_FOOTER_STYLE,
                     ),
                 ],
             ),
@@ -957,7 +1049,7 @@ def register_callbacks(app):
                     ("Faltan: " + ", ".join(missing))
                     if missing
                     else "¡Perfil completo!",
-                    className="text-muted",
+                    style=BLACK_MUTED,
                 ),
             ]
         )
@@ -1014,6 +1106,9 @@ def register_callbacks(app):
                                 "minWidth": "0",
                                 "flex": "1 1 auto",
                                 "height": f"{CONTROL_HEIGHT_PX}px",
+                                "background": "rgba(255,255,255,.10)",
+                                "border": "1px solid rgba(255,255,255,.10)",
+                                "color": "#e2e8f0",
                             },
                         ),
                         dbc.Button(
@@ -1022,8 +1117,7 @@ def register_callbacks(app):
                             color="primary",
                             className="d-inline-flex alignItems-center",
                             style={
-                                "backgroundColor": "#334155",
-                                "border": "none",
+                                **MONITOR_PRIMARY_BTN,
                                 "whiteSpace": "nowrap",
                                 "height": f"{CONTROL_HEIGHT_PX}px",
                                 "lineHeight": f"{CONTROL_HEIGHT_PX - 2}px",
@@ -1045,6 +1139,7 @@ def register_callbacks(app):
                     outline=True,
                     color="secondary",
                     style={
+                        **MONITOR_SECONDARY_BTN,
                         "display": "inline-flex" if show_button else "none",
                         "alignItems": "center",
                         "height": f"{CONTROL_HEIGHT_PX}px",
@@ -1127,7 +1222,8 @@ def register_callbacks(app):
             )
 
         persistent_alert = dbc.Alert(
-            id="ath-link-feedback", is_open=False, color="danger", className="mb-0"
+            id="ath-link-feedback", is_open=False, color="danger", className="mb-0",
+            style={"background": "rgba(239,68,68,.18)", "border": "1px solid rgba(239,68,68,.28)", "color": "#fecaca"},
         )
 
         return html.Div([header, list_block, persistent_alert])
@@ -1433,18 +1529,19 @@ def register_callbacks(app):
 
             extra_line = html.Div(
                 extra_line_text,
-                className="small text-muted",
-                style={"fontSize": "0.65rem"},
+                className="small",
+                style={"fontSize": "0.65rem", **BLACK_MUTED},
             )
 
             is_today = (week_offset == 0 and d == today)
 
             base_style = {
-                "borderRadius": "10px",
-                "border": "1px solid #e2e8f0",
-                "background": "#f8fafc" if is_today else "#ffffff",
+                "borderRadius": "12px",
+                "border": "1px solid rgba(255,255,255,.08)",
+                "background": "rgba(255,255,255,.14)" if is_today else "rgba(2,6,23,.78)",
                 "padding": "4px 4px",
                 "overflow": "hidden",
+                "color": "#e2e8f0",
             }
 
             if idx < 5:
@@ -1484,7 +1581,7 @@ def register_callbacks(app):
             day_btn = dbc.Button(
                 content,
                 id={"type": "ath-week-day", "date": d.isoformat()},
-                color="light",
+                color="secondary",
                 className="p-1",
                 style=btn_style,
             )
@@ -1576,7 +1673,7 @@ def register_callbacks(app):
         except Exception:
             rows = []
         if not rows:
-            return html.Div("No hay sesiones en el calendario.", className="text-muted")
+            return html.Div("No hay sesiones en el calendario.", style=BLACK_MUTED)
 
         def _fmt(x):
             try:
@@ -1586,15 +1683,16 @@ def register_callbacks(app):
                 when = str(x.get("start_dt") or "—")
             return dbc.ListGroupItem(
                 [
-                    html.Div(x.get("title") or "Sesión", className="fw-semibold"),
+                    html.Div(x.get("title") or "Sesión", className="fw-semibold", style=BLACK_TEXT),
                     html.Div(
                         f"{when} — {x.get('location') or '—'}",
-                        className="text-muted",
+                        style=BLACK_MUTED,
                     ),
-                ]
+                ],
+                style={"background": "rgba(2,6,23,.78)", "border": "1px solid rgba(255,255,255,.08)", "color": "#e2e8f0"},
             )
 
-        return dbc.ListGroup([_fmt(dict(r)) for r in rows])
+        return dbc.ListGroup([_fmt(dict(r)) for r in rows], style={"background": "transparent", "border": "none"})
 
     @app.callback(
         [
@@ -1674,7 +1772,7 @@ def register_callbacks(app):
             )
         else:
             plan_body = html.Div(
-                "Sin plan para este día.", className="text-muted"
+                "Sin plan para este día.", style=BLACK_MUTED
             )
 
         plan_card = _small_card("Plan del día", plan_body)
@@ -1699,7 +1797,7 @@ def register_callbacks(app):
             )
         else:
             rec_body = html.Div(
-                "Sin datos recientes.", className="text-muted"
+                "Sin datos recientes.", style=BLACK_MUTED
             )
 
         rec_card = _small_card("Recuperación", rec_body)
@@ -1899,7 +1997,7 @@ def register_callbacks(app):
 
         if not msgs:
             return html.Div(
-                "Sin mensajes con este entrenador.", className="text-muted"
+                "Sin mensajes con este entrenador.", style=BLACK_MUTED
             )
 
         items = []

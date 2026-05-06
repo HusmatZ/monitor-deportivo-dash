@@ -1,4 +1,4 @@
-# views/athlete/monitor_view.py
+﻿# views/athlete/monitor_view.py
 #
 # Monitorización (IMU simulada en tiempo real)
 # - Usa dcc.Interval para refrescar cada 200 ms

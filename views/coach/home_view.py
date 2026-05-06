@@ -16,11 +16,12 @@ def _fmt_id(session: dict) -> str:
 
 def _card_style():
     return {
-        "border": "1px solid rgba(209,217,227,.6)",
-        "background": "rgba(255,255,255,.72)",
-        "backdropFilter": "saturate(120%) blur(4px)",
-        "borderRadius": "16px",
-        "boxShadow": "0 6px 18px rgba(15,23,42,.08)"
+        "border": "1px solid rgba(255,255,255,.04)",
+        "background": "#0b1220",
+        "backdropFilter": "none",
+        "borderRadius": "12px",
+        "boxShadow": "inset 0 0 0 1px rgba(255,255,255,.04)",
+        "color": "#e2e8f0",
     }
 
 def _athlete_card(a: dict):
@@ -32,14 +33,14 @@ def _athlete_card(a: dict):
     return dbc.Card(
         dbc.CardBody(
             [
-                html.Div(f"Atleta: {name}", className="fw-semibold"),
-                html.Div(email, className="muted"),
+                html.Div(f"Atleta: {name}", className="ax-section-title"),
+                html.Div(email, className="ax-label-muted"),
                 html.Div(f"País: {country}", className="mt-1"),
                 html.Div(f"ID: {aid_str}", className="mt-1"),
             ]
         ),
-        className="mb-2",
-        style={"border":"1px solid var(--c-border)", "background":"var(--c-card)", "borderRadius":"12px"}
+        className="axisfit-card axisfit-card-stack",
+        style={"border":"1px solid rgba(255,255,255,.04)", "background":"#0b1220", "borderRadius":"12px"}
     )
 
 def layout():
@@ -58,15 +59,16 @@ def layout():
                             # IZQUIERDA: ID (grande)
                             dbc.Col(
                                 [
-                                    html.Div("ID de cuenta", className="muted mb-1"),
+                                    html.Div("ID de cuenta", className="ax-label-muted mb-1"),
                                     html.Div(
                                         id="coach-id-big",
+                                        className="axisfit-kpi-value",
                                         style={
                                             "fontSize": "2.25rem",
                                             "fontWeight": 800,
                                             "letterSpacing": "0.06em",
                                             "fontFamily": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-                                            "color": "var(--c-text)"
+                                            "color": "#ffffff"
                                         }
                                     ),
                                 ],
@@ -75,7 +77,7 @@ def layout():
                             # DERECHA: Buscador para enlazar atletas por ID
                             dbc.Col(
                                 [
-                                    html.Div("Enlazar con un atleta", className="muted mb-1"),
+                                    html.Div("Enlazar con un atleta", className="ax-label-muted mb-1"),
                                     dbc.InputGroup(
                                         [
                                             dbc.Input(
@@ -86,7 +88,8 @@ def layout():
                                                 debounce=True
                                             ),
                                             dbc.Button("Enlazar", id="coach-link-btn", color="primary",
-                                                       style={"backgroundColor":"var(--c-accent)","border":"none"})
+                                                       className="ax-btn ax-btn-primary",
+                                                       style={"backgroundColor":"var(--bs-primary)","border":"none"})
                                         ],
                                         className="mb-2"
                                     ),
@@ -98,6 +101,7 @@ def layout():
                         align="center"
                     )
                 ),
+                className="axisfit-card axisfit-card-stack",
                 style=_card_style()
             ),
 
