@@ -1,5 +1,6 @@
 # auth.py
 import re
+import uuid
 import dash
 from dash import html, dcc, no_update
 from dash import Input, Output, State
@@ -33,10 +34,10 @@ def _navbar_content(session):
                         "backgroundColor": "#e9ecef",
                         "border": "1px solid #ced4da"
                     },
-                    toggle_class_name="d-flex align-items-center justify-content-center"
+                    toggle_class_name="d-flex align-items-center justify-content-center ax-user-menu-toggle"
                 )
             ],
-            className="d-flex align-items-center"
+            className="d-flex align-items-center flex-nowrap"
         )
     return html.Div(
         [
@@ -198,6 +199,7 @@ def register_auth_callbacks(app):
                     "email": user["email"],
                     "role": user["role"],
                     "country": user.get("country"),
+                    "login_session_id": str(uuid.uuid4()),
                 }
                 return (f"✅ Bienvenido, {user['name']}.", True,
                         session_payload,
@@ -374,7 +376,8 @@ def register_auth_callbacks(app):
             session_payload = {
                 "id": new_id, "id_str": id_str,
                 "name": base["name"], "email": base["email"],
-                "role": "atleta", "country": base["country"]
+                "role": "atleta", "country": base["country"],
+                "login_session_id": str(uuid.uuid4()),
             }
             return (
                 "✅ Cuenta creada correctamente.", True, "success", False, (qreset or 0) + 1,
@@ -457,7 +460,8 @@ def register_auth_callbacks(app):
             session_payload = {
                 "id": new_id, "id_str": id_str,
                 "name": base["name"], "email": base["email"],
-                "role": "entrenador", "country": base["country"]
+                "role": "entrenador", "country": base["country"],
+                "login_session_id": str(uuid.uuid4()),
             }
             return (
                 "✅ Cuenta creada correctamente.", True, "success", False, (qreset or 0) + 1,
