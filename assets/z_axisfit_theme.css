@@ -1,0 +1,1938 @@
+/* Axisfit shared visual theme
+   Global layer extracted from Monitor visual language. */
+
+:root{
+  --axisfit-surface-pad:24px;
+  --axisfit-gap:8px;
+  --axisfit-view-title-h:clamp(64px, 7.5vh, 82px);
+  --axisfit-card-bg:#0b1220;
+  --axisfit-panel-bg:rgba(2,6,23,.78);
+  --axisfit-soft-bg:rgba(255,255,255,.07);
+  --axisfit-border:rgba(255,255,255,.08);
+  --axisfit-text:#e2e8f0;
+  --axisfit-muted:rgba(226,232,240,.75);
+  --axisfit-blue:#1677ff;
+  --axisfit-green:#22c55e;
+  --axisfit-yellow:#f59e0b;
+  --axisfit-red:#ef4444;
+}
+
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+
+.surface:not(.ax-monitor-surface){
+  width:100%;
+  max-width:100%;
+  padding:var(--axisfit-surface-pad) !important;
+  overflow-x:hidden;
+  background:#cbd5e1;
+  border-radius:12px;
+}
+
+.surface:not(.ax-monitor-surface) > .row,
+.surface:not(.ax-monitor-surface) .axisfit-view-grid{
+  --bs-gutter-x:8px;
+  --bs-gutter-y:8px;
+}
+
+.ax-card-black,
+.axisfit-card,
+.surface:not(.ax-monitor-surface) .card{
+  background:var(--axisfit-card-bg) !important;
+  color:var(--axisfit-text) !important;
+  border:0 !important;
+  border-radius:12px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04) !important;
+}
+
+.ax-card-black-stack,
+.axisfit-card-stack,
+.surface:not(.ax-monitor-surface) .card-body{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+
+.surface:not(.ax-monitor-surface) .card-body{
+  padding:12px !important;
+  color:var(--axisfit-text) !important;
+}
+
+.ax-panel-black,
+.axisfit-panel-black,
+.surface:not(.ax-monitor-surface) .list-group-item{
+  background:var(--axisfit-panel-bg) !important;
+  color:var(--axisfit-text) !important;
+  border:0 !important;
+  border-radius:12px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.ax-panel-gray-soft,
+.axisfit-panel-soft,
+.surface:not(.ax-monitor-surface) .alert{
+  background:var(--axisfit-soft-bg) !important;
+  color:var(--axisfit-text) !important;
+  border:1px solid var(--axisfit-border) !important;
+  border-radius:12px !important;
+}
+
+.ax-section-title,
+.ax-card-black-title,
+.ax-main-card-title-only,
+.surface:not(.ax-monitor-surface) .fw-semibold,
+.surface:not(.ax-monitor-surface) .card-title{
+  color:var(--axisfit-text) !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+}
+
+.ax-label-muted,
+.muted,
+.surface:not(.ax-monitor-surface) .text-muted,
+.surface:not(.ax-monitor-surface) .small{
+  color:var(--axisfit-muted) !important;
+  font-size:clamp(10px, .84vw, 13px) !important;
+  font-weight:600 !important;
+  line-height:1.3 !important;
+}
+
+.ax-value-text,
+.axisfit-value,
+.surface:not(.ax-monitor-surface) code{
+  color:var(--axisfit-text) !important;
+  font-size:clamp(11px, .95vw, 14px) !important;
+  font-weight:700 !important;
+}
+
+.axisfit-kpi-value{
+  color:#fff !important;
+  font-size:clamp(18px, 2vw, 28px) !important;
+  font-weight:800 !important;
+  line-height:1;
+}
+
+.ax-btn,
+.surface:not(.ax-monitor-surface) .btn{
+  border-radius:8px !important;
+  min-height:clamp(30px, 2.2vw, 38px) !important;
+  padding:clamp(4px, .55vw, 8px) clamp(9px, .9vw, 14px) !important;
+  font-size:clamp(11px, .95vw, 14px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  box-shadow:none !important;
+}
+
+.ax-btn-primary,
+.surface:not(.ax-monitor-surface) .btn-primary{
+  background:var(--axisfit-blue) !important;
+  border:1px solid var(--axisfit-blue) !important;
+  color:#fff !important;
+}
+
+.ax-btn-gray,
+.surface:not(.ax-monitor-surface) .btn-secondary{
+  background:rgba(255,255,255,.10) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  color:var(--axisfit-text) !important;
+}
+
+.ax-btn-outline,
+.surface:not(.ax-monitor-surface) .btn-outline-secondary{
+  background:transparent !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  color:var(--axisfit-text) !important;
+}
+
+.ax-btn-full{
+  width:100%;
+}
+
+.ax-pill,
+.ax-status-badge,
+.axisfit-badge{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  border-radius:999px !important;
+  min-height:28px !important;
+  padding:5px 10px !important;
+  background:rgba(255,255,255,.10);
+  color:var(--axisfit-text);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+  font-size:clamp(10px, .84vw, 13px) !important;
+  font-weight:700 !important;
+  white-space:nowrap;
+}
+
+.ax-pill-full{
+  width:100%;
+  justify-content:space-between !important;
+}
+
+.axisfit-status-ok{ background:rgba(34,197,94,.18) !important; color:#bbf7d0 !important; }
+.axisfit-status-warn{ background:rgba(245,158,11,.18) !important; color:#fde68a !important; }
+.axisfit-status-bad{ background:rgba(239,68,68,.18) !important; color:#fecaca !important; }
+
+.surface:not(.ax-monitor-surface) input,
+.surface:not(.ax-monitor-surface) textarea,
+.surface:not(.ax-monitor-surface) select,
+.surface:not(.ax-monitor-surface) .form-control,
+.surface:not(.ax-monitor-surface) .form-select{
+  background:rgba(255,255,255,.08) !important;
+  color:var(--axisfit-text) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  border-radius:8px !important;
+  box-shadow:none !important;
+}
+
+.surface:not(.ax-monitor-surface) input::placeholder,
+.surface:not(.ax-monitor-surface) textarea::placeholder{
+  color:rgba(226,232,240,.50) !important;
+}
+
+.ax-modal-header,
+.modal-content .modal-header{
+  background:var(--axisfit-card-bg) !important;
+  color:var(--axisfit-text) !important;
+  border-bottom:1px solid var(--axisfit-border) !important;
+  border-top-left-radius:12px !important;
+  border-top-right-radius:12px !important;
+}
+
+.ax-modal-body,
+.modal-content .modal-body{
+  background:var(--axisfit-card-bg) !important;
+  color:var(--axisfit-text) !important;
+}
+
+.ax-modal-footer,
+.modal-content .modal-footer{
+  background:var(--axisfit-card-bg) !important;
+  color:var(--axisfit-text) !important;
+  border-top:1px solid var(--axisfit-border) !important;
+  border-bottom-left-radius:12px !important;
+  border-bottom-right-radius:12px !important;
+}
+
+.ax-modal-title,
+.modal-title{
+  color:var(--axisfit-text) !important;
+  font-size:clamp(13px, .95vw, 16px) !important;
+  font-weight:700 !important;
+}
+
+.ax-modal-close-x,
+.btn-close{
+  color:#fff !important;
+  filter:invert(1) grayscale(1) brightness(1.6);
+}
+
+.axisfit-table-wrap,
+.surface:not(.ax-monitor-surface) table{
+  width:100%;
+  color:var(--axisfit-text) !important;
+  background:rgba(2,6,23,.78) !important;
+  border-radius:12px !important;
+  overflow:hidden;
+}
+
+.surface:not(.ax-monitor-surface) th{
+  color:var(--axisfit-text) !important;
+  font-weight:800 !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
+.surface:not(.ax-monitor-surface) td{
+  color:rgba(226,232,240,.82) !important;
+  border-color:rgba(255,255,255,.08) !important;
+}
+
+.surface:not(.ax-monitor-surface) .js-plotly-plot,
+.surface:not(.ax-monitor-surface) .dash-graph{
+  min-width:0;
+  max-width:100%;
+}
+
+#coach-home-root{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#coach-home-root .input-group{
+  gap:8px;
+}
+
+#coach-athletes-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+#ath-home-root{
+  overflow-x:hidden;
+}
+
+#ath-home-root .axisfit-home-card{
+  height:auto !important;
+  max-width:100% !important;
+}
+
+#ath-home-root .row{
+  --bs-gutter-x:8px;
+  --bs-gutter-y:8px;
+}
+
+#ath-home-root .progress{
+  background:rgba(255,255,255,.10) !important;
+  border-radius:999px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+#ath-home-root .progress-bar{
+  background:linear-gradient(90deg, var(--axisfit-green), rgba(34,197,94,.55)) !important;
+  color:#fff !important;
+  font-weight:800;
+}
+
+#progress-table table{
+  margin:0;
+  min-width:560px;
+}
+
+.ax-questionnaire-body{
+  min-height:0;
+  width:100%;
+  margin:0 !important;
+  display:flex;
+  flex-direction:column;
+  flex-wrap:nowrap;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  overflow:hidden;
+}
+
+.ax-questionnaire-body > .col-12,
+.ax-questionnaire-body > [class*="col-"]{
+  width:100% !important;
+  max-width:100% !important;
+  flex:0 0 auto !important;
+  padding:0 !important;
+  min-width:0;
+}
+
+.ax-questionnaire-body > .col-12:nth-child(3),
+.ax-questionnaire-body > [class*="col-"]:nth-child(3){
+  display:none !important;
+}
+
+.ax-questionnaire-control-card{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:100% !important;
+  padding:12px !important;
+  gap:8px !important;
+  overflow:hidden !important;
+}
+
+.ax-questionnaire-form-card{
+  height:100% !important;
+  min-height:0 !important;
+  max-height:100% !important;
+  padding:12px !important;
+  gap:8px !important;
+  overflow:hidden !important;
+}
+
+.ax-questionnaire-control-card > div:nth-child(2){
+  flex:1 1 0;
+  min-height:0;
+}
+
+.ax-questionnaire-form-card > div[id^="q-step-"]{
+  min-height:0;
+  overflow:visible;
+}
+
+.ax-questionnaire-form-card > div[id^="q-step-"][style*="display: block"],
+.ax-questionnaire-form-card > div[id^="q-step-"]:not([style*="display: none"]){
+  flex:1 1 auto;
+}
+
+.ax-questionnaire-form-card > .d-flex{
+  flex:0 0 auto;
+}
+
+@media (max-width: 1200px){
+  .surface:not(.ax-monitor-surface){
+    padding:clamp(12px, 2vw, 24px) !important;
+  }
+}
+
+@media (max-width: 768px){
+  .surface:not(.ax-monitor-surface){
+    padding:10px 12px !important;
+  }
+
+  .surface:not(.ax-monitor-surface) .btn,
+  .surface:not(.ax-monitor-surface) .ax-btn{
+    width:100%;
+  }
+
+  .surface:not(.ax-monitor-surface) .row{
+    --bs-gutter-x:8px;
+    --bs-gutter-y:8px;
+  }
+
+  #ath-home-root .axisfit-home-card{
+    width:100% !important;
+    min-width:0 !important;
+  }
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card{
+  padding:12px !important;
+  gap:8px !important;
+}
+
+/* Titulo compartido Monitor/Cuestionario: misma caja, mismo texto y mismo gap. */
+#main-content > .surface.ax-monitor-surface > .ax-monitor-title-row,
+#main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row,
+#main-content > .surface.ax-routines-surface > .ax-monitor-title-row,
+#main-content > .surface.ax-progress-surface > .ax-monitor-title-row,
+.surface.ax-monitor-surface > .ax-monitor-title-row,
+.surface.ax-questionnaire-surface > .ax-monitor-title-row,
+.surface.ax-routines-surface > .ax-monitor-title-row,
+.surface.ax-progress-surface > .ax-monitor-title-row{
+  width:100% !important;
+  flex:0 0 var(--axisfit-view-title-h) !important;
+  height:var(--axisfit-view-title-h) !important;
+  min-height:var(--axisfit-view-title-h) !important;
+  max-height:var(--axisfit-view-title-h) !important;
+  margin-top:0 !important;
+  margin-right:0 !important;
+  margin-bottom:8px !important;
+  margin-left:0 !important;
+  padding:0 !important;
+  display:flex !important;
+  align-items:flex-start !important;
+  justify-content:space-between !important;
+  gap:12px !important;
+  flex-wrap:wrap !important;
+  box-sizing:border-box !important;
+}
+
+/* Proporcion vertical compartida: superficie, titulo y cuerpo usan la misma base. */
+#main-content > .surface.ax-monitor-surface,
+#main-content > .surface.ax-questionnaire-surface,
+#main-content > .surface.ax-routines-surface,
+#main-content > .surface.ax-progress-surface,
+.surface.ax-monitor-surface,
+.surface.ax-questionnaire-surface,
+.surface.ax-routines-surface,
+.surface.ax-progress-surface{
+  display:flex !important;
+  flex-direction:column !important;
+  height:100% !important;
+  min-height:0 !important;
+  max-height:100% !important;
+  padding-top:0 !important;
+  padding-right:0 !important;
+  padding-bottom:0 !important;
+  padding-left:0 !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-monitor-surface > .ax-monitor-body,
+#main-content > .surface.ax-questionnaire-surface > .ax-questionnaire-body,
+#main-content > .surface.ax-routines-surface > .ax-routines-body,
+#main-content > .surface.ax-progress-surface > .ax-progress-body,
+.surface.ax-monitor-surface > .ax-monitor-body,
+.surface.ax-questionnaire-surface > .ax-questionnaire-body,
+.surface.ax-routines-surface > .ax-routines-body,
+.surface.ax-progress-surface > .ax-progress-body{
+  flex:1 1 calc(100% - var(--axisfit-view-title-h) - 8px) !important;
+  height:calc(100% - var(--axisfit-view-title-h) - 8px) !important;
+  min-height:0 !important;
+  max-height:calc(100% - var(--axisfit-view-title-h) - 8px) !important;
+  margin:0 !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  overflow:hidden !important;
+  box-sizing:border-box !important;
+}
+
+.surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"]:nth-child(1){
+  flex:0 0 18% !important;
+  height:18% !important;
+  min-height:0 !important;
+  max-height:18% !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+}
+
+.surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"]:nth-child(2){
+  flex:1 1 0 !important;
+  height:auto !important;
+  min-height:0 !important;
+  max-height:none !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width: 1200px){
+  #main-content > .surface.ax-monitor-surface,
+  #main-content > .surface.ax-questionnaire-surface,
+  #main-content > .surface.ax-routines-surface,
+  #main-content > .surface.ax-progress-surface,
+  .surface.ax-monitor-surface,
+  .surface.ax-questionnaire-surface,
+  .surface.ax-routines-surface,
+  .surface.ax-progress-surface{
+    height:auto !important;
+    min-height:calc(100vh - var(--navbar-h) - 16px) !important;
+    max-height:none !important;
+    padding-top:12px !important;
+    padding-right:0 !important;
+    padding-bottom:24px !important;
+    padding-left:0 !important;
+    overflow:visible !important;
+  }
+
+  #main-content > .surface.ax-monitor-surface > .ax-monitor-body,
+  #main-content > .surface.ax-questionnaire-surface > .ax-questionnaire-body,
+  #main-content > .surface.ax-routines-surface > .ax-routines-body,
+  #main-content > .surface.ax-progress-surface > .ax-progress-body,
+  .surface.ax-monitor-surface > .ax-monitor-body,
+  .surface.ax-questionnaire-surface > .ax-questionnaire-body,
+  .surface.ax-routines-surface > .ax-routines-body,
+  .surface.ax-progress-surface > .ax-progress-body,
+  .surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"]:nth-child(1),
+  .surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"]:nth-child(2){
+    flex:0 0 auto !important;
+    height:auto !important;
+    max-height:none !important;
+    overflow:visible !important;
+  }
+}
+
+@media (max-width: 768px){
+  #main-content > .surface.ax-monitor-surface,
+  #main-content > .surface.ax-questionnaire-surface,
+  #main-content > .surface.ax-routines-surface,
+  #main-content > .surface.ax-progress-surface,
+  .surface.ax-monitor-surface,
+  .surface.ax-questionnaire-surface,
+  .surface.ax-routines-surface,
+  .surface.ax-progress-surface{
+    padding-top:10px !important;
+    padding-right:0 !important;
+    padding-bottom:16px !important;
+    padding-left:0 !important;
+  }
+}
+
+#main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+#main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+#main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+#main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner,
+.surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+.surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+.surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+.surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner{
+  width:75% !important;
+  min-width:0 !important;
+  max-width:75% !important;
+  height:100% !important;
+  min-height:0 !important;
+  background:#0b1220 !important;
+  border-top-left-radius:0 !important;
+  border-top-right-radius:0 !important;
+  border-bottom-left-radius:12px !important;
+  border-bottom-right-radius:12px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.04) !important;
+  padding-top:10px !important;
+  padding-right:clamp(8px, 1vw, 12px) !important;
+  padding-bottom:10px !important;
+  padding-left:clamp(8px, 1vw, 12px) !important;
+  display:flex !important;
+  align-items:flex-end !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+#main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+#main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+#main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+.surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+.surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+.surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+.surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title{
+  display:block !important;
+  color:#ffffff !important;
+  margin:0 !important;
+  padding:0 !important;
+  font-size:clamp(20px, 2.1vw, 32px) !important;
+  font-weight:500 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  white-space:normal !important;
+}
+
+@media (max-width: 992px){
+  #main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner{
+    width:85% !important;
+    max-width:85% !important;
+  }
+
+  #main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title{
+    font-size:clamp(18px, 2.6vw, 26px) !important;
+  }
+}
+
+@media (max-width: 768px){
+  #main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+  #main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner,
+  .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner{
+    width:100% !important;
+    max-width:100% !important;
+  }
+
+  #main-content > .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  #main-content > .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-monitor-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-questionnaire-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-routines-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title,
+  .surface.ax-progress-surface > .ax-monitor-title-row > .ax-title-banner > .ax-page-title{
+    font-size:clamp(17px, 4.2vw, 22px) !important;
+  }
+}
+
+/* Cuestionario: gaps entre cuadros negros iguales a Monitor. */
+#main-content > .surface.ax-questionnaire-surface > .ax-questionnaire-body,
+.surface.ax-questionnaire-surface > .ax-questionnaire-body{
+  --bs-gutter-x:8px !important;
+  --bs-gutter-y:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"],
+.surface.ax-questionnaire-surface > .ax-questionnaire-body > [class*="col-"]{
+  padding:0 !important;
+  margin:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card{
+  margin:0 !important;
+  gap:8px !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > div,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-panel-black),
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-status-item),
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-panel-black),
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-status-item){
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-card-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-card-black{
+  margin:0 !important;
+}
+
+/* Cuestionario: misma densidad tipografica y espaciado interno que Monitor. */
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card{
+  padding:12px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-main-card-title-only{
+  color:#e2e8f0 !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:var(--ax-title-weight, 700) !important;
+  line-height:1.15 !important;
+  margin:0 !important;
+  padding:0 !important;
+  letter-spacing:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-section-title{
+  color:#e2e8f0 !important;
+  font-size:clamp(11px, .9vw, 14px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  margin:0 !important;
+  letter-spacing:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-label-muted,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-label-muted,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card label,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card label{
+  color:rgba(226,232,240,.72) !important;
+  font-size:clamp(10px, .78vw, 12px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-value-text,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-value-text,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card span,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card span{
+  font-size:clamp(11px, .84vw, 13px) !important;
+  font-weight:800 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-gray-soft,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-gray-soft{
+  padding:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-item{
+  padding:8px !important;
+  gap:8px !important;
+  min-height:38px !important;
+  align-items:center !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-pill,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-pill{
+  min-height:30px !important;
+  height:30px !important;
+  padding:5px 10px !important;
+  font-size:clamp(11px, .84vw, 13px) !important;
+  font-weight:800 !important;
+  line-height:1.15 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn{
+  min-height:38px !important;
+  padding:6px 10px !important;
+  font-size:clamp(11px, .9vw, 14px) !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+}
+
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card input,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card input,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .form-control,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .form-control{
+  min-height:38px !important;
+  font-size:clamp(11px, .9vw, 14px) !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+}
+
+/* Cuestionario: replica final de densidad interna de Monitor en cuadros negros. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card{
+  padding:6px 12px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div:first-child .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div:first-child .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-main-card-title-only{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:var(--ax-title-weight, 700) !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card > div,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > div,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-panel-black),
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-panel-black),
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-status-item),
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-status-item),
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-panel-black),
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-panel-black),
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card div:has(> .ax-status-item),
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card div:has(> .ax-status-item){
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-black,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-black,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-gray-soft,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-gray-soft,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-item,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-panel-gray-soft,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-panel-gray-soft,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-item{
+  padding:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-section-title,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-section-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:var(--ax-title-size, 13px) !important;
+  font-weight:var(--ax-title-weight, 700) !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-label-muted,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-label-muted,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card label,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card label,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-label-muted,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-label-muted,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card label,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card label{
+  color:rgba(226,232,240,.75) !important;
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-value-text,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-value-text,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-value-text,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-value-text{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card span:not(.ax-status-badge):not(.ax-value-text),
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card span:not(.ax-status-badge):not(.ax-value-text),
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card span:not(.ax-status-badge):not(.ax-value-text),
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card span:not(.ax-status-badge):not(.ax-value-text){
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-badge,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-badge,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-pill,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-pill,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-pill,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-pill{
+  min-height:30px !important;
+  height:30px !important;
+  padding:6px 10px !important;
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn{
+  min-height:30.4px !important;
+  padding:3.25px 7.2px !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card input,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card input,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .form-control,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .form-control,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card input,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card input,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .form-control,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .form-control{
+  min-height:30.4px !important;
+  height:30.4px !important;
+  padding:3.25px 7.2px !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Cuestionario: cabecera interna identica a los titulos de Estado del dispositivo/Graficas. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:calc(clamp(12px, 1vw, 16px) * 1.2) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  padding:0 !important;
+  margin-top:0 !important;
+  margin-right:0 !important;
+  margin-bottom:8px !important;
+  margin-left:0 !important;
+  flex:0 0 auto !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-questionnaire-monitor-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-questionnaire-monitor-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header + div,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header + div,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header + div,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header + div{
+  margin-top:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header{
+  margin-bottom:8px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header > .ax-questionnaire-monitor-title,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header > .ax-questionnaire-monitor-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card > .ax-questionnaire-card-header > .ax-questionnaire-monitor-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header > .ax-questionnaire-monitor-title{
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+}
+
+/* Cuestionario: titulo principal de cuadro negro, aislado de reglas heredadas. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-questionnaire-main-title-exact,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-questionnaire-main-title-exact{
+  display:block !important;
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  text-align:left !important;
+  text-transform:none !important;
+  text-shadow:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Cuestionario: titulos de cuadros negros principales calcados a Monitor. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-main-card-title-only{
+  display:block !important;
+  color:#e2e8f0 !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:var(--ax-title-weight, 700) !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+}
+
+/* Unificacion final: los titulos principales de cuadros negros usan la misma
+   regla efectiva en Monitor y Cuestionario, evitando solapamientos anteriores. */
+#main-content > .surface.ax-monitor-surface .ax-control-session-card > .ax-main-card-header-tight > .ax-section-title,
+#main-content > .surface.ax-monitor-surface .ax-device-card > #device-user-top > .ax-section-title,
+#main-content > .surface.ax-monitor-surface .ax-monitor-fill-card > .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header > .ax-main-card-title-only,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div.ax-questionnaire-card-header:first-child > .ax-main-card-title-only,
+.surface.ax-monitor-surface .ax-control-session-card > .ax-main-card-header-tight > .ax-section-title,
+.surface.ax-monitor-surface .ax-device-card > #device-user-top > .ax-section-title,
+.surface.ax-monitor-surface .ax-monitor-fill-card > .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header > .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > .ax-questionnaire-card-header > .ax-main-card-title-only,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div.ax-questionnaire-card-header:first-child > .ax-main-card-title-only{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  text-align:left !important;
+  text-transform:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-card-header,
+.surface.ax-questionnaire-surface .ax-questionnaire-card-header{
+  min-height:calc(clamp(12px, .95vw, 16px) * 1.15) !important;
+  margin:0 0 8px 0 !important;
+  padding:0 !important;
+  align-items:center !important;
+}
+
+/* Rutinas y Progreso: los cuadros negros principales usan la misma cabecera
+   compacta ya aplicada en Monitor/Cuestionario. */
+#main-content > .surface.ax-routines-surface .ax-routines-main-black-card,
+#main-content > .surface.ax-progress-surface .ax-progress-main-black-card,
+.surface.ax-routines-surface .ax-routines-main-black-card,
+.surface.ax-progress-surface .ax-progress-main-black-card{
+  padding:6px 12px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-routines-surface .ax-routines-main-black-card > .ax-routines-main-card-title,
+#main-content > .surface.ax-progress-surface .ax-progress-main-black-card > .ax-progress-main-card-title,
+.surface.ax-routines-surface .ax-routines-main-black-card > .ax-routines-main-card-title,
+.surface.ax-progress-surface .ax-progress-main-black-card > .ax-progress-main-card-title{
+  display:block !important;
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(12px, .95vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  text-align:left !important;
+  text-transform:none !important;
+  flex:0 0 auto !important;
+  min-height:calc(clamp(12px, .95vw, 16px) * 1.15) !important;
+  margin:0 0 8px 0 !important;
+  padding:0 0 0 0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+}
+
+#main-content > .surface.ax-routines-surface .ax-routines-main-black-card > .ax-routines-main-card-title + *,
+#main-content > .surface.ax-progress-surface .ax-progress-main-black-card > .ax-progress-main-card-title + *,
+.surface.ax-routines-surface .ax-routines-main-black-card > .ax-routines-main-card-title + *,
+.surface.ax-progress-surface .ax-progress-main-black-card > .ax-progress-main-card-title + *{
+  margin-top:0 !important;
+}
+
+/* Cuestionario: subcuadros superiores con la misma regla real de
+   Estado del dispositivo en Monitor (Firmware/Bateria/Bluetooth). */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row{
+  display:flex !important;
+  width:100% !important;
+  min-width:0 !important;
+  align-items:stretch !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row > *{
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-status-slot,
+.surface.ax-questionnaire-surface .ax-questionnaire-status-slot{
+  display:flex !important;
+  align-items:stretch !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item{
+  width:100% !important;
+  height:100% !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:38px !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  background:var(--ax-panel-black-bg, rgba(2,6,23,.78)) !important;
+  border-radius:var(--ax-panel-black-radius, 12px) !important;
+  box-shadow:var(--ax-panel-black-border, inset 0 0 0 1px rgba(255,255,255,.18)) !important;
+  padding-top:8px !important;
+  padding-right:8px !important;
+  padding-bottom:8px !important;
+  padding-left:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  box-sizing:border-box !important;
+  overflow:hidden !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item > *{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item > div:first-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item > div:first-child{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  min-height:auto !important;
+  height:auto !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  margin:0 !important;
+  line-height:1.15 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item .ax-section-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(11px, 0.92vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-device-row .ax-status-item .ax-status-badge{
+  width:100px !important;
+  min-width:100px !important;
+  max-width:100px !important;
+  height:30px !important;
+  min-height:30px !important;
+  max-height:30px !important;
+  flex:0 0 100px !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  margin:0 !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width:1200px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row,
+  .surface.ax-questionnaire-surface .ax-questionnaire-device-row{
+    flex-wrap:wrap !important;
+  }
+
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row > *,
+  .surface.ax-questionnaire-surface .ax-questionnaire-device-row > *{
+    flex:1 1 calc(50% - 4px) !important;
+  }
+}
+
+@media (max-width:768px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row,
+  .surface.ax-questionnaire-surface .ax-questionnaire-device-row{
+    flex-direction:column !important;
+    flex-wrap:nowrap !important;
+  }
+
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-device-row > *,
+  .surface.ax-questionnaire-surface .ax-questionnaire-device-row > *{
+    width:100% !important;
+    flex:1 1 100% !important;
+  }
+}
+
+/* Cuestionario - Punto de control:
+   Paso actual e Indice de riesgo no deben estirar el label como los paneles
+   de dos columnas del formulario; asi el chip gris queda con el mismo gap real. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item{
+  justify-content:flex-start !important;
+  padding-top:6px !important;
+  padding-right:8px !important;
+  padding-bottom:6px !important;
+  padding-left:8px !important;
+  gap:8px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item > div:first-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item > div:first-child{
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:none !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item .ax-status-badge{
+  margin-left:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > div:last-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > div:last-child{
+  flex:1 1 auto !important;
+  min-width:180px !important;
+}
+
+/* Ajuste final de Punto de control:
+   - El cuadro principal recupera el padding inferior de Estado del dispositivo.
+   - Solo Paso actual usa layout compacto con barra.
+   - Indice de riesgo vuelve a alinear el badge al borde derecho como Firmware/Bateria. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card{
+  padding-bottom:12px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item{
+  padding-top:8px !important;
+  padding-right:8px !important;
+  padding-bottom:8px !important;
+  padding-left:8px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-step-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-step-status-item{
+  justify-content:flex-start !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > div:first-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > div:first-child{
+  flex:0 0 auto !important;
+  width:auto !important;
+  max-width:none !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-step-status-item > .ax-status-badge{
+  width:150px !important;
+  min-width:150px !important;
+  max-width:150px !important;
+  flex:0 0 150px !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item{
+  justify-content:space-between !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item > div:first-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-status-slot > .ax-status-item > div:first-child{
+  flex:1 1 auto !important;
+  width:auto !important;
+  max-width:100% !important;
+}
+
+/* Cuestionario - estados superiores del formulario:
+   usar exactamente la caja visual de Monitor para v1.0.3 / Conectado. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row{
+  display:flex !important;
+  width:100% !important;
+  min-width:0 !important;
+  align-items:stretch !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  flex-wrap:nowrap !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div{
+  display:flex !important;
+  align-items:stretch !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:38px !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  padding-top:8px !important;
+  padding-right:8px !important;
+  padding-bottom:8px !important;
+  padding-left:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > *{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > div:first-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > div:first-child{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  display:flex !important;
+  align-items:center !important;
+  min-height:auto !important;
+  height:auto !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  margin:0 !important;
+  line-height:1.15 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item .ax-section-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(11px, 0.92vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item .ax-status-badge{
+  width:100px !important;
+  min-width:100px !important;
+  max-width:100px !important;
+  height:30px !important;
+  min-height:30px !important;
+  max-height:30px !important;
+  flex:0 0 100px !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  margin:0 !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width:1200px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row{
+    flex-wrap:wrap !important;
+  }
+
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div{
+    flex:1 1 calc(50% - 4px) !important;
+  }
+}
+
+@media (max-width:768px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row{
+    flex-direction:column !important;
+    flex-wrap:nowrap !important;
+  }
+
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div{
+    width:100% !important;
+    flex:1 1 100% !important;
+  }
+}
+
+/* Cuestionario - botones azules y grises:
+   replica la regla real de Monitor para Iniciar calibracion / Historial. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn{
+  max-width:100% !important;
+  min-width:0;
+  box-sizing:border-box !important;
+  min-height:clamp(30px, 2.2vw, 38px) !important;
+  height:auto !important;
+  padding-top:clamp(3px, 0.45vw, 7px) !important;
+  padding-right:clamp(7px, 0.8vw, 12px) !important;
+  padding-bottom:clamp(3px, 0.45vw, 7px) !important;
+  padding-left:clamp(7px, 0.8vw, 12px) !important;
+  border-radius:var(--ax-btn-radius, 8px) !important;
+  font-family:inherit !important;
+  font-size:clamp(11px, 0.95vw, 14px) !important;
+  font-weight:var(--ax-btn-font-weight, 700) !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  white-space:normal !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+  text-align:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn-primary,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn-primary,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn-primary,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn-primary,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn-primary,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn-primary,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn-primary,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn-primary{
+  background:var(--ax-btn-primary-bg, var(--bs-primary, #0d6efd)) !important;
+  border:1px solid var(--ax-btn-primary-border, var(--bs-primary, #0d6efd)) !important;
+  color:var(--ax-btn-primary-text, #ffffff) !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn-gray,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn-gray,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn-secondary,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn-secondary,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn-gray,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn-gray,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn-secondary,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn-secondary{
+  background:var(--ax-btn-gray-bg, rgba(255,255,255,.10)) !important;
+  border:1px solid var(--ax-btn-gray-border, rgba(255,255,255,.10)) !important;
+  color:var(--ax-btn-gray-text, #e2e8f0) !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn:disabled,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn:disabled,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn:disabled,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn:disabled,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn:disabled,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn:disabled,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn:disabled,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn:disabled{
+  opacity:.55 !important;
+  cursor:not-allowed !important;
+}
+
+@media (max-width:1200px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn{
+    min-height:clamp(30px, 2.6vw, 36px) !important;
+    font-size:clamp(10px, 1.1vw, 13px) !important;
+    padding-top:clamp(3px, 0.5vw, 6px) !important;
+    padding-right:clamp(7px, 0.9vw, 11px) !important;
+    padding-bottom:clamp(3px, 0.5vw, 6px) !important;
+    padding-left:clamp(7px, 0.9vw, 11px) !important;
+  }
+}
+
+@media (max-width:768px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-control-card .ax-btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card .ax-btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-control-card .btn,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card .btn{
+    min-height:clamp(30px, 8vw, 36px) !important;
+    font-size:clamp(10px, 3.2vw, 12px) !important;
+    padding-top:clamp(3px, 1vw, 6px) !important;
+    padding-right:clamp(7px, 2vw, 10px) !important;
+    padding-bottom:clamp(3px, 1vw, 6px) !important;
+    padding-left:clamp(7px, 2vw, 10px) !important;
+  }
+}
+
+/* q-finish queda como componente tecnico para callbacks; q-save-exit concentra
+   Guardar y finalizar y reutiliza la misma rama funcional. */
+#q-finish{
+  display:none !important;
+  width:0 !important;
+  min-width:0 !important;
+  max-width:0 !important;
+  min-height:0 !important;
+  height:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  margin:0 !important;
+  overflow:hidden !important;
+}
+
+/* Cuestionario - subcuadros negros de los 6 pasos:
+   misma densidad de diseno que Indice de riesgo / estados personalizados. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:38px !important;
+  height:auto !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  background:var(--ax-panel-black-bg, rgba(2,6,23,.78)) !important;
+  border-radius:var(--ax-panel-black-radius, 12px) !important;
+  box-shadow:var(--ax-panel-black-border, inset 0 0 0 1px rgba(255,255,255,.18)) !important;
+  padding-top:8px !important;
+  padding-right:8px !important;
+  padding-bottom:8px !important;
+  padding-left:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > *{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > .ax-panel-black-row,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > .ax-panel-black-row{
+  flex:0 0 auto !important;
+  min-height:auto !important;
+  height:auto !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  padding:0 !important;
+  margin:0 !important;
+  line-height:1.15 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > .ax-panel-black-row .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black > .ax-panel-black-row .ax-section-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(11px, 0.92vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .ax-status-badge{
+  height:30px !important;
+  min-height:30px !important;
+  max-height:30px !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  margin:0 !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black label,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .ax-label-muted,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black label,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .ax-label-muted{
+  color:rgba(226,232,240,.75) !important;
+  font-family:inherit !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black input,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .form-control,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black input,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black .form-control{
+  min-height:30px !important;
+  height:30px !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  box-sizing:border-box !important;
+}
+
+/* Cuestionario - cuadros grises de campos dentro de los pasos:
+   Edad, Dolor cervical, Dolor lumbar, etc. replican Completada/Guardados. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge),
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge){
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  width:100% !important;
+  min-width:0 !important;
+  min-height:38px !important;
+  margin:0 !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > .ax-status-badge{
+  height:30px !important;
+  min-height:30px !important;
+  max-height:30px !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  margin-top:0 !important;
+  margin-right:0 !important;
+  margin-bottom:0 !important;
+  margin-left:0 !important;
+  background:rgba(255,255,255,.10) !important;
+  color:#e2e8f0 !important;
+  border-radius:999px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08) !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > div:last-child,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > div:last-child{
+  flex:1 1 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+@media (max-width:768px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge),
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge){
+    flex-wrap:wrap !important;
+  }
+
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > .ax-status-badge,
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-card > div[id^="q-step-"] .ax-panel-black div:has(> .ax-status-badge) > .ax-status-badge{
+    flex:1 1 100% !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
+
+/* Cuestionario - chips grises superiores:
+   Paso actual, Indice de riesgo, Ultima evaluacion, Estado diario y Umbrales
+   usan la misma caja visual que Completada/Guardados de Monitor. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-badge,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-badge,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-badge{
+  height:30px !important;
+  min-height:30px !important;
+  max-height:30px !important;
+  align-self:center !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:4px !important;
+  padding-right:12px !important;
+  padding-bottom:4px !important;
+  padding-left:12px !important;
+  margin:0 !important;
+  background:rgba(255,255,255,.10);
+  color:#e2e8f0 !important;
+  border-radius:999px !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08) !important;
+  font-family:inherit !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item{
+  min-height:38px !important;
+  padding-top:8px !important;
+  padding-right:8px !important;
+  padding-bottom:8px !important;
+  padding-left:8px !important;
+  gap:8px !important;
+  row-gap:8px !important;
+  column-gap:8px !important;
+  align-items:center !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item > *,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-status-item > *,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-status-item > *{
+  margin-top:0 !important;
+  margin-bottom:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-section-title,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-control-status-row .ax-section-title,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row .ax-section-title{
+  color:#e2e8f0 !important;
+  font-family:inherit !important;
+  font-size:clamp(11px, 0.92vw, 16px) !important;
+  font-weight:700 !important;
+  line-height:1.15 !important;
+  letter-spacing:0 !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row #q-open-quick-tips,
+.surface.ax-questionnaire-surface .ax-questionnaire-form-status-row #q-open-quick-tips{
+  width:100% !important;
+  min-height:clamp(30px, 2.2vw, 38px) !important;
+  height:auto !important;
+  align-self:center !important;
+  padding-top:clamp(3px, 0.45vw, 7px) !important;
+  padding-right:clamp(7px, 0.8vw, 12px) !important;
+  padding-bottom:clamp(3px, 0.45vw, 7px) !important;
+  padding-left:clamp(7px, 0.8vw, 12px) !important;
+}
+
+@media (min-width:1201px){
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div:has(#q-open-quick-tips),
+  .surface.ax-questionnaire-surface .ax-questionnaire-form-status-row > div:has(#q-open-quick-tips){
+    flex:0 0 160px !important;
+    width:160px !important;
+    min-width:160px !important;
+    max-width:160px !important;
+    align-items:center !important;
+  }
+}
+
+/* Cuestionario - acciones inferiores compactas y alineadas a la derecha. */
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions,
+.surface.ax-questionnaire-surface .ax-questionnaire-footer-actions{
+  width:100% !important;
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  gap:8px !important;
+  flex-wrap:nowrap !important;
+  margin-left:auto !important;
+  box-sizing:border-box !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-back,
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-next,
+.surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-back,
+.surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-next{
+  flex:0 0 clamp(64px, 5vw, 80px) !important;
+  width:clamp(64px, 5vw, 80px) !important;
+  min-width:clamp(64px, 5vw, 80px) !important;
+  max-width:clamp(64px, 5vw, 80px) !important;
+  white-space:nowrap !important;
+}
+
+#main-content > .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-save-exit,
+.surface.ax-questionnaire-surface .ax-questionnaire-footer-actions #q-save-exit{
+  flex:0 0 clamp(120px, 10vw, 150px) !important;
+  width:clamp(120px, 10vw, 150px) !important;
+  min-width:clamp(120px, 10vw, 150px) !important;
+  max-width:clamp(120px, 10vw, 150px) !important;
+  white-space:normal !important;
+}
+
+@media (max-width:520px){
+  #main-content > .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions,
+  .surface.ax-questionnaire-surface .ax-questionnaire-footer-actions{
+    flex-wrap:wrap !important;
+  }
+}
